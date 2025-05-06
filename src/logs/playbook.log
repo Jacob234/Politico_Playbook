@@ -1,0 +1,10 @@
+2025-05-06 13:25:55,458 - __main__ - INFO - Starting Politico Playbook collection
+2025-05-06 13:25:55,459 - __main__ - INFO - Connecting to email...
+2025-05-06 13:25:56,049 - __main__ - ERROR - Failed to establish email connection
+2025-05-06 13:25:56,312 - __main__ - ERROR - Error fetching newsletter: 403 Client Error: Forbidden for url: https://www.politico.com/newsletters/playbook
+2025-05-06 13:25:56,314 - __main__ - INFO - Completed Politico Playbook collection
+2025-05-06 13:27:08,431 - __main__ - INFO - Starting Politico Playbook collection
+2025-05-06 13:27:08,431 - __main__ - INFO - Connecting to email...
+2025-05-06 13:27:08,881 - __main__ - ERROR - Failed to establish email connection
+2025-05-06 13:27:09,066 - __main__ - ERROR - Error fetching newsletter: 403 Client Error: Forbidden for url: https://www.politico.com/newsletters/playbook
+2025-05-06 13:27:09,070 - __main__ - INFO - Completed Politico Playbook collection
