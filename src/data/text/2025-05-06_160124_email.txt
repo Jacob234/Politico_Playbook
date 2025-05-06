@@ -1,0 +1,66 @@
+Delivered every Tuesday and Friday by 12 p.m., Prescription Pulse examines the latest pharmaceutical news and policy.
+May 06, 2025
+View in browser
+By
+David Lim
+With help from Ruth Reader
+Driving The Day
+The FDA has appointed a tech expert to fill a new position as the agency’s head of artificial intelligence and information technology.
+|
+Shutterstock
+TECH EXPERT IN CHARGE — Jeremy Walsh is now heading up artificial intelligence and information technology in a newly created position at the FDA. He announced the move on LinkedIn.
+Walsh comes from the government contractor Booz Allen Hamilton, where he worked for 14 years and was chief technologist, building out cloud networks and data analytics systems for the agencies the firm works with, Ruth reports.
+While at Booz Allen, Walsh worked on contracts with the FDA, the CDC, the NIH, Veterans Affairs and military health services.
+This is the first time the FDA has appointed a chief AI officer. Former chief information officer Vid Desai managed IT for the agency.
+Walsh arrives at the FDA amid major workforce cuts. Among the losses have been key tech talent, including Sridhar Mantha, former director of strategic programs at the Center for Drug Evaluation and Research. He co-chaired the AI Council at CDER and helped develop policy around AI’s use in drug development.
+Walsh could try to make the FDA more efficient by looking for areas where he can combine similar or redundant databases across the agency centers, said a source familiar with Walsh and granted anonymity to share insights on his thinking.
+Booz Allen and other big contractors have been in President Donald Trump’s crosshairs. In March, the General Services Administration sent letters to the most highly paid contractors in pursuit of cost reductions, asking them to explain all their deals, Bloomberg reported.
+Booz Allen offered more than $1 billion in savings; killed its diversity, equity and inclusion programs; and said it would no longer sponsor the LGBTQ+ festival WorldPride.
+The firm is also touting its ideas for making government more efficient, in keeping with Trump’s Department of Government Efficiency initiative and its push to shrink the federal government. One idea is to move more government data storage to the cloud and centralize IT operations.
+IT’S TUESDAY. WELCOME BACK TO PRESCRIPTION PULSE. Hearing chatter about most-favored nations discussions? Reach out.
+Send your tips to David Lim (dlim@politico.com, @davidalim or davidalim.49 on Signal) and Lauren Gardner (lgardner@politico.com, @Gardner_LM or gardnerlm.01 on Signal).
+Industry Intel
+President Donald Trump, flanked by NIH Director Jay Bhattacharya (left) and HHS Secretary Robert F. Kennedy Jr., signs several health-policy related executive orders Monday.
+|
+Alex Brandon/AP
+TRUMP SIGNS DRUG MANUFACTURING EO — President Donald Trump wants the FDA to boost the number of foreign drug manufacturer facilities that regularly undergo inspections.
+The push — which an executive order signed by Trump on Monday says will be paid for by higher fees on foreign companies — builds on efforts by the FDA to increase the number of inspections it conducts in the years following the Covid-19 pandemic.
+The directive instructs FDA Commissioner Marty Makary to develop a plan to ensure that overseas manufacturers that supply the U.S. with medicines are routinely inspected within 90 days. In the Oval Office on Monday, Makary said the order would boost the number of surprise foreign inspections abroad.
+“The foreign sites get off easy with scheduled visits while we have surprise visits in the United States,” Makary said in the Oval Office. “A scheduled visit is no inspection.”
+The order also aims to make it easier for pharmaceutical manufacturers to move production to the U.S.
+“Industry estimates suggest that building new manufacturing capacity for pharmaceuticals and critical inputs may take as long as 5 to 10 years, which is unacceptable from a national security standpoint,” the executive order states.
+Trump indicated his administration has settled a tariff rate on pharmaceuticals at the signing of the order.
+“I have, I’ll announce it over the next two weeks,” Trump said, when asked about the drug tariffs and their timing.
+“Today’s executive order is a welcome step toward supporting the hundreds of billions of dollars in new U.S. investments recently announced by our companies,” PhRMA spokesperson Alex Schriver said. “However, the ability to invest more in U.S. manufacturing also depends on avoiding policies that would undermine our world-leading innovation ecosystem.”
+Eye on the FDA
+SOON-SHIONG COMPLAINS — ImmunityBio, an oncology drugmaker founded by Dr. Patrick Soon-Shiong, is accusing the FDA of reversing course on what the company said was a recommendation to submit a supplemental application for a new indication for its bladder cancer medication.
+The company said it received “unanimous guidance and encouragement” at a January meeting from agency leaders to submit a supplemental biologics license application for Anktiva for a papillary disease indication. But the FDA sent a refusal-to-file letter after the company submitted the application in March — and now ImmunityBio wants an “urgent meeting.”
+An HHS spokesperson declined to comment.
+ImmunityBio’s press release quotes former FDA Principal Deputy Commissioner Rachel Sherman — who it says attended the January meeting — describing the RTF letter as “rife with regulatory inaccuracies.”
+“It is incomprehensible to me that the FDA refuses to file a supplemental [biological license application], stating the study is not sufficient to support a regulatory review, when it has already approved a product based on that very same study in essentially the same indication and population,” Sherman said in the press release.
+In Congress
+HAWLEY, WELCH TEAM UP — Two senators want to tie the retail list price for certain medicines to no more than the average retail list price for the products in Canada, France, Germany, Italy, Japan and the United Kingdom.
+The new bipartisan bill introduced by Sens. Josh Hawley (R-Mo.) and Peter Welch (D-Vt.) would impose a penalty if companies were to violate the limit, POLITICO’s Ben Leonard and Jordain Carney report.
+The legislation takes a different approach than a White House push for a most-favored nations proposal that would tie what Medicaid pays for medicines to lower prices paid abroad. Most Americans don’t pay drugs’ list prices because insurers and pharmacy benefit managers can negotiate lower costs.
+Where congressional Republicans ultimately end up on drug pricing as part of their yet-to-be-finalized megabill remains to be seen.
+“If Republicans want to save money on health care costs in reconciliation, this is where to start,” Hawley said.
+In the courts
+DOJ DEFENDS FDA IN ABORTION PILL SUIT — The Department of Justice argued in a filing Monday that challengers suing the FDA’s rules allowing abortion pills to be available online and by mail lack standing and should be thrown out, POLITICO’s Alice Miranda Ollstein reports.
+The case against the FDA — taken over by Idaho, Kansas and Missouri — was first brought by a group of anti-abortion doctors called the Alliance for Hippocratic Medicine that argued the agency’s 25-year-old approval of mifepristone — and several policies since that made the drug more easily accessible — should be overturned because FDA didn’t adequately consider the drug’s health risks.
+The DOJ also slammed the challengers’ claims that FDA rules permitting the pills to be mailed across state lines violate laws in Idaho, Kansas and Missouri banning the pills’ use in most circumstances.
+“The mere fact that someone might violate state law does not by itself injure the government,” Trump administration attorneys wrote. The states “fail to identify any actual or imminent controversy over whether any of their laws are preempted.”
+Document Drawer
+FDA Commissioner Marty Makary and FDA Deputy Commissioner for Policy, Legislation and International Affairs Grace Graham met with Sen. Rick Scott (R-Fla.) on April 24, according to a public calendar notice. And FDA Acting Deputy Commissioner for Human Foods Kyle Diamantas met with the Council for Responsible Nutrition to discuss dietary supplements on April 25.
+The FDA seeks drug-manufacturing participants for the second year of its voluntary quality management maturity prototype assessment protocol evaluation program, which aims to provide feedback on their quality practices. The agency is collecting requests to participate until June 9.
+Group purchasing organization Premier submitted comments on the Department of Commerce’s Section 232 national security investigation of pharmaceuticals and drug ingredients — warning rapid implementation of tariff increases on health care products could increase costs and shortages in the short term.
+WHAT WE'RE READING
+The FDA is convening an advisory committee to discuss Capricor Therapeutics’ application for cell therapy for a heart condition tied to Duchenne muscular dystrophy, Reuters’ Siddhi Mahatole reports.
+Bristol Myers Squibb CEO Christopher Boerner took to STAT as the latest drugmaker executive to tout U.S. investment efforts.
+Follow us on X
+David Lim @davidalim
+Lauren Gardner @Gardner_LM
+Follow us
+To change your alert settings, please log in at
+https://login.politico.com/?redirect=https%3A%2F%2Fwww.politico.com/settings
+This email was sent to politicollector@gmail.com by: POLITICO 1000 Wilson Blvd Arlington, VA, 22209, USA
+Unsubscribe | Privacy Policy | Terms of Service

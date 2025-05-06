@@ -8,3 +8,46 @@
 2025-05-06 13:27:08,881 - __main__ - ERROR - Failed to establish email connection
 2025-05-06 13:27:09,066 - __main__ - ERROR - Error fetching newsletter: 403 Client Error: Forbidden for url: https://www.politico.com/newsletters/playbook
 2025-05-06 13:27:09,070 - __main__ - INFO - Completed Politico Playbook collection
+2025-05-06 13:30:53,726 - __main__ - INFO - Starting Politico Playbook collection
+2025-05-06 13:30:53,726 - __main__ - INFO - Connecting to email...
+2025-05-06 13:30:55,308 - __main__ - ERROR - Failed to establish email connection
+2025-05-06 13:30:55,559 - __main__ - ERROR - Error fetching newsletter: 403 Client Error: Forbidden for url: https://www.politico.com/newsletters/playbook
+2025-05-06 13:30:55,560 - __main__ - INFO - Completed Politico Playbook collection
+2025-05-06 13:33:19,102 - __main__ - INFO - Starting Politico Playbook collection
+2025-05-06 13:33:19,102 - __main__ - INFO - Connecting to email...
+2025-05-06 13:33:19,587 - __main__ - ERROR - Failed to establish email connection
+2025-05-06 13:33:19,588 - __main__ - INFO - Completed Politico Playbook collection
+2025-05-06 13:35:04,737 - __main__ - INFO - Starting Politico Playbook collection
+2025-05-06 13:35:04,737 - __main__ - INFO - Connecting to email...
+2025-05-06 13:35:06,123 - __main__ - ERROR - Failed to establish email connection
+2025-05-06 13:35:06,123 - __main__ - INFO - Completed Politico Playbook collection
+2025-05-06 13:35:46,745 - __main__ - INFO - Starting Politico Playbook collection
+2025-05-06 13:35:46,745 - __main__ - INFO - Connecting to email...
+2025-05-06 13:35:50,290 - __main__ - INFO - Extracting Politico Playbook emails...
+2025-05-06 13:35:50,700 - __main__ - ERROR - Error during email extraction: command SEARCH illegal in state AUTH, only allowed in states SELECTED
+2025-05-06 13:35:53,567 - __main__ - INFO - Email connection closed
+2025-05-06 13:35:53,567 - __main__ - INFO - Completed Politico Playbook collection
+2025-05-06 13:39:19,151 - __main__ - INFO - Starting Politico Playbook collection
+2025-05-06 13:39:19,152 - __main__ - INFO - Connecting to email...
+2025-05-06 13:39:19,537 - __main__ - INFO - Extracting Politico Playbook emails...
+2025-05-06 13:39:19,930 - __main__ - INFO - Email extraction complete.
+2025-05-06 13:39:19,934 - __main__ - INFO - Processed 2025-04-18_playbook.html
+2025-05-06 13:39:19,996 - __main__ - INFO - Email connection closed
+2025-05-06 13:39:19,996 - __main__ - INFO - Completed Politico Playbook collection
+2025-05-06 13:48:39,455 - __main__ - INFO - Starting Politico Playbook collection
+2025-05-06 13:48:39,455 - __main__ - INFO - Connecting to email...
+2025-05-06 13:48:40,151 - __main__ - INFO - Extracting Politico Playbook emails...
+2025-05-06 13:48:43,166 - __main__ - INFO - Email extraction complete. Processed 10 emails.
+2025-05-06 13:48:43,167 - __main__ - INFO - Processed 2025-05-06_164441_email.html
+2025-05-06 13:48:43,168 - __main__ - INFO - Processed 2025-05-06_164443_email.html
+2025-05-06 13:48:43,177 - __main__ - INFO - Processed 2025-05-06_130208_email.html
+2025-05-06 13:48:43,183 - __main__ - INFO - Processed 2025-05-06_171236_email.html
+2025-05-06 13:48:43,188 - __main__ - INFO - Processed 2025-05-06_160124_email.html
+2025-05-06 13:48:43,189 - __main__ - INFO - Processed 2025-05-06_171202_email.html
+2025-05-06 13:48:43,190 - __main__ - INFO - Processed 2025-05-06_164021_email.html
+2025-05-06 13:48:43,191 - __main__ - INFO - Processed 2025-05-06_164501_email.html
+2025-05-06 13:48:43,197 - __main__ - INFO - Processed 2025-05-06_172622_email.html
+2025-05-06 13:48:43,201 - __main__ - INFO - Processed 2025-04-18_playbook.html
+2025-05-06 13:48:43,207 - __main__ - INFO - Processed 2025-05-06_140218_email.html
+2025-05-06 13:48:43,291 - __main__ - INFO - Email connection closed
+2025-05-06 13:48:43,291 - __main__ - INFO - Completed Politico Playbook collection

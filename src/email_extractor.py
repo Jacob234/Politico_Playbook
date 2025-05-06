@@ -34,14 +34,32 @@ def connect_to_email(email_address, password):
         print(f"Failed to connect to email: {e}")
         return None
 
-def extract_playbook_emails(mail, output_dir="newsletters", csv_file="playbook_data.csv"):
+def extract_playbook_emails(mail, output_dir="newsletters", csv_file="playbook_data.csv", max_emails=10):
     """Extract Politico Playbook emails and save content."""
     # Select the inbox
-    mail.select("Primary")
-    
-    # Search for emails from Politico Playbook
-    status, messages = mail.search(None, '(FROM "politico.com" SUBJECT "POLITICO Playbook")')
-    
+    try:
+        status, messages = mail.select("INBOX")
+        
+        if status != 'OK':
+            return f"Failed to select mailbox: {messages}"
+        
+        # Search for emails from Politico Playbook
+        status, total_messages = mail.search(None, 'All')
+        if status != 'OK':
+            return f"Failed to search mailbox: {total_messages}"
+        
+        message_ids = total_messages[0].split()
+        
+        num_to_fetch = min(max_emails, len(message_ids))
+        recent_ids = message_ids[-num_to_fetch:]
+        
+        
+        
+        
+        
+    except Exception as e:
+        return f"Error in extract_playbook_emails: {e}"
+        
     # Create output directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)
     
@@ -53,44 +71,56 @@ def extract_playbook_emails(mail, output_dir="newsletters", csv_file="playbook_d
             writer.writerow(["Date", "Subject", "Filename"])
             
         # Process each email
-        for num in messages[0].split():
-            status, data = mail.fetch(num, '(RFC822)')
-            raw_email = data[0][1]
-            msg = email.message_from_bytes(raw_email)
+        processed_count = 0
+        for num in recent_ids:
+            try:
+                status, data = mail.fetch(num, '(RFC822)')
+                raw_email = data[0][1]
+                msg = email.message_from_bytes(raw_email)
+                
+                # Extract subject and date
+                subject = decode_header(msg["subject"])[0][0]
+                if isinstance(subject, bytes):
+                    subject = subject.decode()
+                    
+                date_str = msg["date"]
+                date_obj = email.utils.parsedate_to_datetime(date_str)
+                formatted_date = date_obj.strftime("%Y-%m-%d")
+                
+                # Extract email body
+                body = ""
+                if msg.is_multipart():
+                    for part in msg.walk():
+                        content_type = part.get_content_type()
+                        if content_type == "text/html":
+                            body = part.get_payload(decode=True).decode()
+                            break
+                else:
+                    body = msg.get_payload(decode=True).decode()
+                
+                # Only process if there's a body to save
+                if body:
+                    # Save email content to file with a unique identifier
+                    timestamp = date_obj.strftime("%H%M%S")
+                    filename = f"{formatted_date}_{timestamp}_email.html"
+                    filepath = os.path.join(output_dir, filename)
+                    with open(filepath, "w", encoding="utf-8") as f:
+                        f.write(body)
+                    
+                    # Save metadata to CSV
+                    writer.writerow([formatted_date, subject, filename])
+                    processed_count += 1
+                    
+            except Exception as e:
+                print(f"Error processing email {num}: {e}")
+                continue
             
-            # Extract subject and date
-            subject = decode_header(msg["subject"])[0][0]
-            if isinstance(subject, bytes):
-                subject = subject.decode()
-            date_str = msg["date"]
-            date_obj = email.utils.parsedate_to_datetime(date_str)
-            formatted_date = date_obj.strftime("%Y-%m-%d")
-            
-            # Extract email body
-            if msg.is_multipart():
-                for part in msg.walk():
-                    content_type = part.get_content_type()
-                    if content_type == "text/html":
-                        body = part.get_payload(decode=True).decode()
-                        break
-            else:
-                body = msg.get_payload(decode=True).decode()
-            
-            # Save email content to file
-            filename = f"{formatted_date}_playbook.html"
-            filepath = os.path.join(output_dir, filename)
-            with open(filepath, "w", encoding="utf-8") as f:
-                f.write(body)
-            
-            # Save metadata to CSV
-            writer.writerow([formatted_date, subject, filename])
-            
-    return "Email extraction complete."
+    return f"Email extraction complete. Processed {processed_count} emails."
 
 def main():
     # Replace with your email and password
     email_address = "politicollector@gmail.com"
-    password = "tIgwu1-deznit-cozbus"
+    password = "ckaczaggrgagpimb"
     mail = connect_to_email(email_address, password)
     result = extract_playbook_emails(mail)
     print(result)
