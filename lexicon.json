@@ -1,0 +1,240 @@
+{
+    "terms": {
+      "whip": {
+        "term": "Whip",
+        "political_definition": "A member of a political party in a legislature who is responsible for ensuring party discipline and attendance for voting",
+        "context_patterns": ["party whip", "majority whip", "minority whip", "house whip", "senate whip"],
+        "examples": ["Kevin McCarthy served as House Majority Whip", "James Clyburn is the House Majority Whip"]
+      },
+      "caucus": {
+        "term": "Caucus",
+        "political_definition": "A meeting of members of a political party or subgroup to coordinate policy or select candidates",
+        "context_patterns": ["democratic caucus", "republican caucus", "congressional caucus", "caucus chair"],
+        "examples": ["The Black Caucus met on Tuesday", "Members of the Progressive Caucus opposed the bill"]
+      },
+      "ranking member": {
+        "term": "Ranking Member",
+        "political_definition": "The most senior member of the minority party on a committee",
+        "context_patterns": ["ranking member of", "committee's ranking member", "ranking republican", "ranking democrat"],
+        "examples": ["Jane Smith is the Ranking Member of the Judiciary Committee"]
+      },
+      "markup": {
+        "term": "Markup",
+        "political_definition": "A committee meeting to debate, amend, and rewrite proposed legislation",
+        "context_patterns": ["committee markup", "markup session", "during the markup"],
+        "examples": ["The bill passed out of markup with several amendments"]
+      },
+      "filibuster": {
+        "term": "Filibuster",
+        "political_definition": "A parliamentary procedure where debate is extended to delay or prevent a vote on a bill",
+        "context_patterns": ["senate filibuster", "filibuster reform", "filibuster rules", "threatening a filibuster"],
+        "examples": ["The senator's filibuster lasted over 12 hours"]
+      }
+    },
+    "acronyms": {
+      "OMB": {
+        "acronym": "OMB",
+        "expansion": "Office of Management and Budget",
+        "entity_type": "organization",
+        "government_branch": "executive"
+      },
+      "CBO": {
+        "acronym": "CBO",
+        "expansion": "Congressional Budget Office",
+        "entity_type": "organization",
+        "government_branch": "legislative"
+      },
+      "DOJ": {
+        "acronym": "DOJ",
+        "expansion": "Department of Justice",
+        "entity_type": "organization",
+        "government_branch": "executive"
+      },
+      "SCOTUS": {
+        "acronym": "SCOTUS",
+        "expansion": "Supreme Court of the United States",
+        "entity_type": "organization",
+        "government_branch": "judicial"
+      },
+      "WHCOS": {
+        "acronym": "WHCOS",
+        "expansion": "White House Chief of Staff",
+        "entity_type": "position",
+        "government_branch": "executive"
+      },
+      "DNCC": {
+        "acronym": "DNCC",
+        "expansion": "Democratic National Congressional Committee",
+        "entity_type": "organization",
+        "government_branch": null
+      },
+      "NRCC": {
+        "acronym": "NRCC",
+        "expansion": "National Republican Congressional Committee",
+        "entity_type": "organization",
+        "government_branch": null
+      },
+      "USTR": {
+        "acronym": "USTR",
+        "expansion": "United States Trade Representative",
+        "entity_type": "organization",
+        "government_branch": "executive"
+      },
+      "POTUS": {
+        "acronym": "POTUS",
+        "expansion": "President of the United States",
+        "entity_type": "position",
+        "government_branch": "executive"
+      },
+      "VPOTUS": {
+        "acronym": "VPOTUS",
+        "expansion": "Vice President of the United States",
+        "entity_type": "position",
+        "government_branch": "executive"
+      }
+    },
+    "roles": {
+      "chief of staff": {
+        "role": "Chief of Staff",
+        "organization_types": ["White House", "Senate Office", "Congressional Office", "Cabinet Department", "Agency"],
+        "hierarchy_level": "senior",
+        "typical_relationships": ["reports to", "oversees", "manages"]
+      },
+      "press secretary": {
+        "role": "Press Secretary",
+        "organization_types": ["White House", "Senate Office", "Congressional Office", "Cabinet Department", "Campaign"],
+        "hierarchy_level": "senior",
+        "typical_relationships": ["represents", "speaks for", "briefs"]
+      },
+      "legislative director": {
+        "role": "Legislative Director",
+        "organization_types": ["Senate Office", "Congressional Office"],
+        "hierarchy_level": "senior",
+        "typical_relationships": ["drafts", "analyzes", "advises"]
+      },
+      "communications director": {
+        "role": "Communications Director",
+        "organization_types": ["White House", "Senate Office", "Congressional Office", "Cabinet Department", "Campaign"],
+        "hierarchy_level": "senior",
+        "typical_relationships": ["develops", "coordinates", "oversees"]
+      },
+      "policy advisor": {
+        "role": "Policy Advisor",
+        "organization_types": ["White House", "Senate Office", "Congressional Office", "Cabinet Department", "Think Tank"],
+        "hierarchy_level": "mid",
+        "typical_relationships": ["advises", "researches", "drafts"]
+      },
+      "chief counsel": {
+        "role": "Chief Counsel",
+        "organization_types": ["Senate Committee", "House Committee", "Senate Office", "Cabinet Department"],
+        "hierarchy_level": "senior",
+        "typical_relationships": ["advises", "reviews", "represents"]
+      },
+      "scheduler": {
+        "role": "Scheduler",
+        "organization_types": ["Senate Office", "Congressional Office", "Cabinet Secretary", "White House"],
+        "hierarchy_level": "mid",
+        "typical_relationships": ["manages", "coordinates", "arranges"]
+      },
+      "staff assistant": {
+        "role": "Staff Assistant",
+        "organization_types": ["Senate Office", "Congressional Office", "White House", "Cabinet Department"],
+        "hierarchy_level": "junior",
+        "typical_relationships": ["supports", "assists", "coordinates"]
+      }
+    },
+    "euphemisms": {
+      "spending more time with family": {
+        "euphemism": "spending more time with family",
+        "likely_interpretation": "resignation",
+        "sentiment": "neutral/negative",
+        "confidence_factor": 0.8
+      },
+      "pursue other opportunities": {
+        "euphemism": "pursue other opportunities",
+        "likely_interpretation": "resignation or termination",
+        "sentiment": "neutral/negative",
+        "confidence_factor": 0.7
+      },
+      "stepping aside": {
+        "euphemism": "stepping aside",
+        "likely_interpretation": "resignation",
+        "sentiment": "neutral",
+        "confidence_factor": 0.9
+      },
+      "exploring other options": {
+        "euphemism": "exploring other options",
+        "likely_interpretation": "seeking new position",
+        "sentiment": "neutral",
+        "confidence_factor": 0.7
+      },
+      "mutual decision": {
+        "euphemism": "mutual decision",
+        "likely_interpretation": "forced resignation",
+        "sentiment": "negative",
+        "confidence_factor": 0.6
+      },
+      "deeply concerned": {
+        "euphemism": "deeply concerned",
+        "likely_interpretation": "preparing to oppose",
+        "sentiment": "negative",
+        "confidence_factor": 0.6
+      },
+      "closely monitoring": {
+        "euphemism": "closely monitoring",
+        "likely_interpretation": "not taking action yet",
+        "sentiment": "neutral",
+        "confidence_factor": 0.7
+      },
+      "taking under advisement": {
+        "euphemism": "taking under advisement",
+        "likely_interpretation": "likely to ignore",
+        "sentiment": "neutral/negative",
+        "confidence_factor": 0.6
+      }
+    },
+    "organizations": {
+      "house ways and means committee": {
+        "name": "House Ways and Means Committee",
+        "org_type": "congressional committee",
+        "acronyms": ["Ways and Means"],
+        "parent_org": "U.S. House of Representatives"
+      },
+      "senate finance committee": {
+        "name": "Senate Finance Committee",
+        "org_type": "congressional committee",
+        "acronyms": ["Finance Committee"],
+        "parent_org": "U.S. Senate"
+      },
+      "house oversight committee": {
+        "name": "House Oversight and Government Reform Committee",
+        "org_type": "congressional committee",
+        "acronyms": ["House Oversight", "Oversight Committee"],
+        "parent_org": "U.S. House of Representatives"
+      },
+      "senate foreign relations committee": {
+        "name": "Senate Foreign Relations Committee",
+        "org_type": "congressional committee",
+        "acronyms": ["SFRC", "Foreign Relations"],
+        "parent_org": "U.S. Senate"
+      },
+      "house armed services committee": {
+        "name": "House Armed Services Committee",
+        "org_type": "congressional committee",
+        "acronyms": ["HASC", "Armed Services"],
+        "parent_org": "U.S. House of Representatives"
+      },
+      "democratic national committee": {
+        "name": "Democratic National Committee",
+        "org_type": "political party committee",
+        "acronyms": ["DNC"],
+        "parent_org": "Democratic Party"
+      },
+      "republican national committee": {
+        "name": "Republican National Committee",
+        "org_type": "political party committee",
+        "acronyms": ["RNC"],
+        "parent_org": "Republican Party"
+      }
+    }
+  }
