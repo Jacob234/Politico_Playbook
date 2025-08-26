@@ -4,6 +4,10 @@ from email.header import decode_header
 import os
 import csv
 from datetime import datetime
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 def clean(text):
     # Clean text for creating a folder
     return "".join(c if c.isalnum() or c in [' ', '.', '_'] else '_' for c in text)
@@ -118,14 +122,22 @@ def extract_playbook_emails(mail, output_dir="newsletters", csv_file="playbook_d
     return f"Email extraction complete. Processed {processed_count} emails."
 
 def main():
-    # Replace with your email and password
-    email_address = "politicollector@gmail.com"
-    password = "ckaczaggrgagpimb"
+    # Get credentials from environment variables
+    email_address = os.getenv('GMAIL_ADDRESS')
+    password = os.getenv('GMAIL_APP_PASSWORD')
+    
+    if not email_address or not password:
+        print("Error: Gmail credentials not found in environment variables.")
+        print("Please set GMAIL_ADDRESS and GMAIL_APP_PASSWORD in your .env file.")
+        return
+    
     mail = connect_to_email(email_address, password)
-    result = extract_playbook_emails(mail)
-    print(result)
-    mail.logout()
-    # Close the email connection
+    if mail:
+        result = extract_playbook_emails(mail)
+        print(result)
+        mail.logout()
+    else:
+        print("Failed to connect to Gmail.")
     
 if __name__ == "__main__":
     main()
