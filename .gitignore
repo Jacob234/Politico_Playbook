@@ -1,0 +1,48 @@
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment variables
+.env
+*.env
+
+# Sensitive data
+Backup-codes-*.txt
+credentials.json
+token.json
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Logs
+*.log
+logs/
+
+# Data (optional - decide if you want to track)
+data/cache/
+data/raw/*.html
