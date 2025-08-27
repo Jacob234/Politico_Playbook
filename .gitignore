@@ -9,9 +9,16 @@ ENV/
 *.env
 
 # Sensitive data
+credentials/
 credentials
 credentials.json
 token.json
+*.key
+*.pem
+*.p12
+*.pfx
+config/secrets/
+secrets/
 
 # OS Files
 .DS_Store
