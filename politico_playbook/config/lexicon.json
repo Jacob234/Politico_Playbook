@@ -193,6 +193,115 @@
         "confidence_factor": 0.6
       }
     },
+    "current_figures": {
+      "donald trump": {
+        "name": "Donald Trump",
+        "titles": ["President", "POTUS"],
+        "party": "Republican",
+        "current_position": "President of the United States",
+        "aliases": ["Trump", "President Trump"]
+      },
+      "chuck schumer": {
+        "name": "Chuck Schumer", 
+        "titles": ["Senator", "Minority Leader"],
+        "party": "Democratic",
+        "state": "NY",
+        "current_position": "Senate Minority Leader",
+        "aliases": ["Schumer", "Senator Schumer", "Charles Schumer"]
+      },
+      "john thune": {
+        "name": "John Thune",
+        "titles": ["Senator", "Majority Leader"],
+        "party": "Republican", 
+        "state": "SD",
+        "current_position": "Senate Majority Leader",
+        "aliases": ["Thune", "Senator Thune"]
+      },
+      "chris van hollen": {
+        "name": "Chris Van Hollen",
+        "titles": ["Senator"],
+        "party": "Democratic",
+        "state": "MD", 
+        "aliases": ["Van Hollen", "Senator Van Hollen"]
+      },
+      "jerry moran": {
+        "name": "Jerry Moran",
+        "titles": ["Senator"],
+        "party": "Republican",
+        "state": "KS",
+        "aliases": ["Moran", "Senator Moran"]
+      },
+      "amy klobuchar": {
+        "name": "Amy Klobuchar",
+        "titles": ["Senator"],
+        "party": "Democratic",
+        "state": "MN",
+        "aliases": ["Klobuchar", "Senator Klobuchar"]
+      },
+      "brooke rollins": {
+        "name": "Brooke Rollins",
+        "titles": ["Secretary", "Agriculture Secretary"],
+        "party": "Republican",
+        "current_position": "Agriculture Secretary",
+        "aliases": ["Rollins", "Secretary Rollins"]
+      },
+      "john kennedy": {
+        "name": "John Kennedy",
+        "titles": ["Senator"],
+        "party": "Republican",
+        "state": "LA",
+        "aliases": ["Kennedy", "Senator Kennedy"]
+      },
+      "susan collins": {
+        "name": "Susan Collins",
+        "titles": ["Senator"],
+        "party": "Republican",
+        "state": "ME",
+        "aliases": ["Collins", "Senator Collins"]
+      },
+      "lisa murkowski": {
+        "name": "Lisa Murkowski",
+        "titles": ["Senator"],
+        "party": "Republican",
+        "state": "AK",
+        "aliases": ["Murkowski", "Senator Murkowski"]
+      },
+      "markwayne mullin": {
+        "name": "Markwayne Mullin",
+        "titles": ["Senator"],
+        "party": "Republican",
+        "state": "OK", 
+        "aliases": ["Mullin", "Senator Mullin"]
+      },
+      "martin heinrich": {
+        "name": "Martin Heinrich",
+        "titles": ["Senator"],
+        "party": "Democratic",
+        "state": "NM",
+        "aliases": ["Heinrich", "Senator Heinrich"]
+      },
+      "mitch mcconnell": {
+        "name": "Mitch McConnell",
+        "titles": ["Senator"],
+        "party": "Republican",
+        "state": "KY",
+        "aliases": ["McConnell", "Senator McConnell"]
+      },
+      "pete hegseth": {
+        "name": "Pete Hegseth",
+        "titles": ["Secretary", "Defense Secretary"],
+        "party": "Republican",
+        "current_position": "Defense Secretary",
+        "aliases": ["Hegseth", "Secretary Hegseth"]
+      },
+      "dan sullivan": {
+        "name": "Dan Sullivan", 
+        "titles": ["Senator"],
+        "party": "Republican",
+        "state": "AK",
+        "aliases": ["Sullivan", "Senator Sullivan"]
+      }
+    },
     "organizations": {
       "house ways and means committee": {
         "name": "House Ways and Means Committee",
@@ -235,6 +344,72 @@
         "org_type": "political party committee",
         "acronyms": ["RNC"],
         "parent_org": "Republican Party"
+      },
+      "commerce-justice-science": {
+        "name": "Commerce-Justice-Science Appropriations",
+        "org_type": "appropriations subcommittee",
+        "acronyms": ["CJS"],
+        "parent_org": "U.S. Congress"
+      },
+      "agriculture-fda": {
+        "name": "Agriculture-FDA Appropriations", 
+        "org_type": "appropriations subcommittee",
+        "acronyms": ["Ag-FDA"],
+        "parent_org": "U.S. Congress"
+      },
+      "white house": {
+        "name": "White House",
+        "org_type": "executive office",
+        "acronyms": ["WH"],
+        "parent_org": "Executive Branch"
+      },
+      "pentagon": {
+        "name": "Department of Defense",
+        "org_type": "executive department", 
+        "acronyms": ["Pentagon", "DOD"],
+        "parent_org": "Executive Branch"
+      },
+      "fbi": {
+        "name": "Federal Bureau of Investigation",
+        "org_type": "law enforcement agency",
+        "acronyms": ["FBI"],
+        "parent_org": "Department of Justice"
+      },
+      "usda": {
+        "name": "United States Department of Agriculture",
+        "org_type": "executive department",
+        "acronyms": ["USDA"],
+        "parent_org": "Executive Branch"
+      },
+      "small business administration": {
+        "name": "Small Business Administration",
+        "org_type": "federal agency",
+        "acronyms": ["SBA"],
+        "parent_org": "Executive Branch"
+      },
+      "fish and wildlife service": {
+        "name": "U.S. Fish and Wildlife Service",
+        "org_type": "federal agency",
+        "acronyms": ["FWS"],
+        "parent_org": "Department of the Interior"
+      },
+      "education department": {
+        "name": "Department of Education",
+        "org_type": "executive department",
+        "acronyms": ["DOE", "ED"],
+        "parent_org": "Executive Branch"
+      },
+      "national institutes of health": {
+        "name": "National Institutes of Health", 
+        "org_type": "federal agency",
+        "acronyms": ["NIH"],
+        "parent_org": "Department of Health and Human Services"
+      },
+      "treasury department": {
+        "name": "Department of the Treasury",
+        "org_type": "executive department",
+        "acronyms": ["Treasury"],
+        "parent_org": "Executive Branch"
       }
     }
   }

@@ -8,6 +8,85 @@ from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
+
+def is_valid_playbook_email(subject, sender_email):
+    """
+    Validate if an email is a legitimate Politico Playbook newsletter.
+    Returns True if it passes all validation checks.
+    
+    Validation checks:
+        - Subject should not be empty.
+        - Subject should not contains any excluded keywords.
+        - Subject should contain the word "Playbook".
+        - Sender email should be from a valid Politico domain.
+        
+    If all pass, then true
+    """
+    if not subject:
+        return False
+    
+    subject_lower = subject.lower()
+    
+    # Exclude welcome/admin emails (be specific to avoid false positives)
+    excluded_patterns = [
+        'welcome to', 'thank you for subscribing', 'yes! you subscribed',
+        'security alert', '2-step verification', 'verification turned on',
+        'authenticator app', 'password', 'recovery email', 'sign-in step',
+        'unsubscribe', 'preference center', 'subscription confirmed',
+        'correction to  ', 'correction to'  # Empty corrections
+    ]
+    
+    if any(pattern in subject_lower for pattern in excluded_patterns):
+        return False
+    
+    # Accept ALL emails EXCEPT those that are clearly admin/welcome/error emails
+    # No need to require specific political keywords - let through all legitimate newsletters
+    
+    # Validate sender
+    if sender_email:
+        sender_lower = sender_email.lower()
+        valid_domains = ['@politico.com', '@email.politico.com']
+        if not any(domain in sender_lower for domain in valid_domains):
+            return False
+    
+    return True
+
+def extract_newsletter_metadata(subject, body_text):
+    """
+    Extract metadata from newsletter content.
+    """
+    import re
+    
+    metadata = {
+        'sponsor': None,
+        'authors': [],
+        'playbook_type': 'standard'
+    }
+    
+    if body_text:
+        # Extract sponsor information
+        sponsor_match = re.search(r'presented by:?\s*([^\n\r]+)', body_text, re.IGNORECASE)
+        if sponsor_match:
+            metadata['sponsor'] = sponsor_match.group(1).strip()
+        
+        # Extract authors (common patterns in Playbook)
+        author_patterns = [
+            r'by\s+([^,\n]+(?:,\s*[^,\n]+)*)',
+            r'your playbook team[,:]?\s*([^\n]+)',
+            r'with\s+([^,\n]+(?:,\s*[^,\n]+)*)'
+        ]
+        
+        for pattern in author_patterns:
+            author_match = re.search(pattern, body_text, re.IGNORECASE)
+            if author_match:
+                authors_text = author_match.group(1)
+                # Split on 'and' or commas
+                authors = [name.strip() for name in re.split(r'\s+and\s+|,', authors_text) if name.strip()]
+                metadata['authors'] = authors
+                break
+    
+    return metadata
+
 def clean(text):
     # Clean text for creating a folder
     return "".join(c if c.isalnum() or c in [' ', '.', '_'] else '_' for c in text)
@@ -47,15 +126,37 @@ def extract_playbook_emails(mail, output_dir="newsletters", csv_file="playbook_d
         if status != 'OK':
             return f"Failed to select mailbox: {messages}"
         
-        # Search for emails from Politico Playbook
-        status, total_messages = mail.search(None, 'All')
-        if status != 'OK':
-            return f"Failed to search mailbox: {total_messages}"
+        # Search for emails from specific date range (2025-08-01 to 2025-08-04)
+        import datetime
+        start_date = "01-Aug-2025"  # August 1, 2025
+        end_date = "04-Aug-2025"    # August 4, 2025
         
-        message_ids = total_messages[0].split()
+        search_criteria = [
+            # Broader POLITICO newsletter searches for specific date range
+            f'(FROM "politico.com" SINCE "{start_date}" BEFORE "{end_date}")',
+            f'(FROM "email.politico.com" SINCE "{start_date}" BEFORE "{end_date}")',
+        ]
         
+        all_message_ids = set()
+        
+        for criteria in search_criteria:
+            try:
+                status, messages = mail.search(None, criteria)
+                if status == 'OK' and messages[0]:
+                    message_ids = messages[0].split()
+                    all_message_ids.update(message_ids)
+                    print(f"Found {len(message_ids)} messages with criteria: {criteria}")
+            except Exception as e:
+                print(f"Search failed for criteria '{criteria}': {e}")
+                continue
+        
+        if not all_message_ids:
+            return "No Politico Playbook emails found with any search criteria."
+        
+        # Convert back to list and get most recent emails (reverse order for newest first)
+        message_ids = sorted(list(all_message_ids), reverse=True)
         num_to_fetch = min(max_emails, len(message_ids))
-        recent_ids = message_ids[-num_to_fetch:]
+        recent_ids = message_ids[:num_to_fetch]  # Take first N (most recent)
         
         
         
@@ -82,10 +183,30 @@ def extract_playbook_emails(mail, output_dir="newsletters", csv_file="playbook_d
                 raw_email = data[0][1]
                 msg = email.message_from_bytes(raw_email)
                 
-                # Extract subject and date
-                subject = decode_header(msg["subject"])[0][0]
-                if isinstance(subject, bytes):
-                    subject = subject.decode()
+                # Extract subject and date with better encoding handling
+                subject_header = msg["subject"]
+                if subject_header:
+                    decoded_parts = decode_header(subject_header)
+                    subject_parts = []
+                    for part, encoding in decoded_parts:
+                        if isinstance(part, bytes):
+                            if encoding:
+                                subject_parts.append(part.decode(encoding))
+                            else:
+                                subject_parts.append(part.decode('utf-8', errors='ignore'))
+                        else:
+                            subject_parts.append(str(part))
+                    subject = ''.join(subject_parts)
+                else:
+                    subject = "No Subject"
+                    
+                # Extract sender email
+                sender_email = msg["from"]
+                
+                # Validate email before processing
+                if not is_valid_playbook_email(subject, sender_email):
+                    print(f"Skipping email with subject: {subject} (failed validation)")
+                    continue
                     
                 date_str = msg["date"]
                 date_obj = email.utils.parsedate_to_datetime(date_str)

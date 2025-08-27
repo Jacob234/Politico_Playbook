@@ -145,11 +145,59 @@ python -c "from politico_playbook.src.extraction.email_client import main; print
 
 ## Priority Tasks (Next Steps)
 
-1. **HIGH**: Implement NLP entity extraction in `politico_playbook/src/processing/`
-2. **HIGH**: Create relationship extraction patterns
-3. **MEDIUM**: Build SQLite database storage system
-4. **MEDIUM**: Complete text processing pipeline
-5. **LOW**: Build visualization interface
+1. **HIGH**: ✅ Implement NLP entity extraction in `politico_playbook/src/processing/`
+2. **HIGH**: ✅ Create relationship extraction patterns  
+3. **HIGH**: **CURRENT** - Implement Claude-based NLP enhancement for 98%+ accuracy
+4. **MEDIUM**: Build SQLite database storage system
+5. **MEDIUM**: Complete text processing pipeline
+6. **LOW**: Build visualization interface
+
+## Political NLP Enhancement - Phase 1: Claude Integration
+
+### Current Implementation Status
+- ✅ spaCy-based NLP processor (70% accuracy, high false positives)
+- 🔄 **IN PROGRESS**: Claude-3.5-Haiku primary processor
+- ⏸️ Claude-3.5-Sonnet escalation for complex cases
+- ⏸️ Confidence-based routing
+- ⏸️ Political entity validation
+- ⏸️ Bulk processing optimization
+
+### Architecture
+Two-tier Claude system for political newsletter analysis:
+- **Primary**: Haiku for standard extraction (~90% of cases) - $0.01/newsletter
+- **Escalation**: Sonnet for complex/uncertain cases (~10% of cases) - $0.03 additional
+- **Target**: 98-99% accuracy at ~$0.015/newsletter average
+
+### Usage
+```bash
+cd politico_playbook
+python src/processing/claude_nlp_processor.py
+# Processes all newsletters in data/structured/
+# Outputs enhanced results to data/structured/claude_enhanced/
+```
+
+### Future Multi-Stage Enhancement Plan
+
+#### Phase 2: Ultra-Low Cost Pre-filtering (Future)
+- **Stage 0**: Groq/Gemini Flash pre-filter ($0.002/newsletter)
+- **Stage 1**: Haiku validation ($0.008/newsletter)  
+- **Stage 2**: Sonnet resolution ($0.003 average)
+- **Target**: 99.9% accuracy at $0.013/newsletter
+
+#### Phase 3: Real-Time Verification (Future)
+- Political database integration
+- Current role verification via Perplexity API
+- Continuous learning pipeline
+
+#### Phase 4: Advanced Analytics (Future)
+- Network analysis and relationship graphs
+- Temporal relationship tracking
+- Political influence mapping
+
+## Outstanding Issues
+
+- **Playbook Type Mapping**: The current email-to-playbook-type mapping in `html_to_json.py` is generally incorrect and needs to be refined. The mapping should be based on actual newsletter content analysis rather than assumptions.
+- **spaCy NLP Quality**: Current entity extraction has ~70% accuracy with many false positives (journalists marked as politicians, malformed entities). Being replaced with Claude-based system.
 
 ## Updated Dependencies
 

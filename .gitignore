@@ -9,7 +9,7 @@ ENV/
 *.env
 
 # Sensitive data
-Backup-codes-*.txt
+credentials
 credentials.json
 token.json
 

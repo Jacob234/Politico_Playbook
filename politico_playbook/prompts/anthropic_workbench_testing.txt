@@ -1,0 +1,387 @@
+CLAUDE NLP PROCESSOR - ANTHROPIC WORKBENCH TESTING GUIDE
+===============================================================
+
+CURRENT ISSUES:
+- Haiku seemingly not producing JSON outputs consistently
+- Sonnet still not being ideal for extraction
+- Only extracting 3-5 people instead of expected 25+ per newsletter
+- High escalation rate (80%) suggesting primary extraction is failing
+
+TESTING OBJECTIVES:
+1. Fix Haiku JSON output consistency
+2. Improve Sonnet extraction accuracy  
+3. Achieve comprehensive extraction (15-30+ people per newsletter)
+4. Reduce unnecessary escalations
+
+===============================================================
+1. SIMPLIFIED HAIKU PROMPT (TEST THIS FIRST)
+===============================================================
+
+Extract ALL people mentioned in this political newsletter. Return ONLY valid JSON.
+
+NEWSLETTER TEXT:
+[PASTE NEWSLETTER TEXT HERE - SEE SECTION 4]
+
+REQUIRED OUTPUT FORMAT (return ONLY this JSON structure):
+{
+  "people": [
+    {
+      "name": "Full Name",
+      "category": "political_official|journalist|staff|other",
+      "employer": "Organization", 
+      "role": "Position/Title",
+      "party": "Republican|Democrat|Independent",
+      "state": "State abbreviation",
+      "activity": "What they did in this newsletter",
+      "context": "Direct quote or reference from text",
+      "confidence": 0.95
+    }
+  ],
+  "relationships": [
+    {
+      "subject": "Person 1",
+      "predicate": "met_with|reported_on|appointed|negotiated_with",
+      "object": "Person 2", 
+      "context": "Supporting text from newsletter",
+      "confidence": 0.90
+    }
+  ],
+  "organizations": [
+    {
+      "name": "Organization Name",
+      "type": "government|media|private",
+      "activity": "What they did",
+      "people_involved": ["List", "Of", "Names"],
+      "confidence": 0.90
+    }
+  ],
+  "stories_and_topics": [
+    {
+      "topic": "Story Title",
+      "key_figures": ["Names", "Involved"],
+      "details": "Brief description",
+      "confidence": 0.85
+    }
+  ],
+  "overall_confidence": 0.88
+}
+
+INSTRUCTIONS:
+- Extract EVERY person mentioned by name
+- Include authors, sources, officials, staff, journalists, lobbyists
+- Most newsletters have 15-30+ people - be comprehensive
+- Use confidence scores 0.7-0.99 based on certainty
+- Return ONLY the JSON, no explanations
+
+===============================================================
+2. ENHANCED SONNET PROMPT (TEST IF HAIKU FAILS)
+===============================================================
+
+You are an expert political intelligence analyst. Extract comprehensive information from this political newsletter.
+
+NEWSLETTER TEXT:
+[PASTE NEWSLETTER TEXT HERE - SEE SECTION 4]
+
+EXTRACTION REQUIREMENTS:
+1. Every person mentioned by name (officials, journalists, staff, lobbyists, private citizens)
+2. Their roles, employers, activities in this newsletter
+3. All relationships and interactions described
+4. Organizations and their activities
+5. Key stories and policy topics
+
+Most political newsletters mention 20-40+ people across categories:
+- Political officials (senators, representatives, executives)
+- Journalists and reporters (bylines, sources, quoted reporters)  
+- Staff members (aides, advisors, spokespeople)
+- Private sector (lobbyists, business leaders, consultants)
+
+RETURN ONLY VALID JSON:
+{
+  "people": [
+    {
+      "name": "Full Name",
+      "category": "political_official|journalist|staff|lobbyist|private_citizen|other",
+      "employer": "Current Organization",
+      "role": "Current Position/Title", 
+      "party": "Political party if applicable",
+      "state": "State if applicable",
+      "expertise": "Area of expertise",
+      "reported_on": ["Topics they reported on"],
+      "involved_in": ["Issues/activities they're involved in"],
+      "activity": "Specific actions/statements in this newsletter",
+      "previous_role": "Previous position if mentioned",
+      "context": "Direct quote or reference from newsletter",
+      "confidence": 0.95
+    }
+  ],
+  "relationships": [
+    {
+      "subject": "Person/Entity 1",
+      "predicate": "met_with|reported_on|appointed|hired|negotiated_with|criticized|praised",
+      "object": "Person/Entity 2",
+      "context": "Supporting text from newsletter", 
+      "type": "meeting|reporting|appointment|hiring|negotiation|statement",
+      "confidence": 0.90
+    }
+  ],
+  "organizations": [
+    {
+      "name": "Organization Name",
+      "type": "government|media|lobbying|private_company|political_group|think_tank",
+      "activity": "What they did in this newsletter",
+      "people_involved": ["Names", "Of", "People", "Associated"],
+      "context": "Supporting text",
+      "confidence": 0.90
+    }
+  ],
+  "stories_and_topics": [
+    {
+      "topic": "Story/Policy Topic Name",
+      "key_figures": ["Main", "People", "Involved"],
+      "details": "Detailed description of the story/issue",
+      "reporter": "Who reported this story",
+      "significance": "Why this story matters",
+      "context": "Supporting quotes or details",
+      "confidence": 0.85
+    }
+  ],
+  "overall_confidence": 0.90
+}
+
+BE COMPREHENSIVE - extract every named person, not just the main figures.
+
+===============================================================
+3. WORKBENCH TESTING PARAMETERS
+===============================================================
+
+MODEL SETTINGS TO TEST:
+- Model: claude-3-5-haiku-20241022 (for prompt #1)
+- Model: claude-3-5-sonnet-20241022 (for prompt #2)
+
+PARAMETER VARIATIONS:
+Test A: temperature=0.1, max_tokens=8192
+Test B: temperature=0.3, max_tokens=8192  
+Test C: temperature=0.5, max_tokens=6000
+
+EXPECTED RESULTS:
+- Haiku should extract 15-25 people with good JSON formatting
+- Sonnet should extract 25-35 people with high accuracy
+- JSON should parse without errors
+- Should include authors, officials, reporters, staff, private sector
+
+===============================================================
+4. SAMPLE NEWSLETTER TEXT (12,158 characters)
+===============================================================
+
+Aug 01, 2025
+View in browser
+
+ By Calen Razor, Cassandra Dumay, Mia McCarthy and Benjamin Guggenheim
+
+IN TODAY'S EDITION:— Maybe Trump and Schumer should just get in a room— Big emotions in Senate funding talks— Mullins, Heinrich talk member security revamp
+
+Senate Majority Leader John Thune and Minority Leader Chuck Schumer are negotiating government funding bills and the president's nominees. | Francis Chung/POLITICO
+
+The Senate's summer exit is getting complicated as lawmakers brace for some weekend work.
+Tensions are running high over government funding negotiations. And Senate leaders have yet to seal a deal to advance dozens of President Donald Trump's nominees as Majority Leader John Thune shuttles between the White House and Minority Leader Chuck Schumer.
+Here's the latest on where things stand.
+Funding meltdown – The prospects for two major appropriations bills are dimming after a flurry of drama.
+The odds of including the Commerce-Justice-Science bill in an appropriations "minibus" withered late Thursday night. Sen. Chris Van Hollen, who has used the bill as a platform to fight the Trump administration's plans for keeping FBI HQ in Washington, objected to including the CJS legislation in the broader funding package. Van Hollen wants the agency's campus to move to his home state of Maryland, per a prior agreement.
+Van Hollen's hardball tactics rattled Sen. Jerry Moran, the lead appropriator on the bill, who teared up as he spoke about it on the floor.
+Moran said he knew "no path forward" that would allow Van Hollen to amend the bill to address his FBI concerns, per our Katherine Tully-McManus and Jennifer Scholtes. 
+"Our appropriations process is fragile," Moran said.
+The Agriculture-FDA funding bill is still a contender for inclusion in the package. But Sen. Amy Klobuchar tells Jennifer that she's seeking answers first from Agriculture Secretary Brooke Rollins about USDA's plans for a major reorganization under Trump. 
+The Senate's legislative branch funding bill still faces a snag with Sen. John Kennedy. Thune is optimistic the Senate will at least get military and VA funding through before recess.
+"We're trying to work out the rest of the package," Thune said late Thursday. "And the Dems are now sort of changing their demands with regards to amendments, etc., so we'll have to see if we can land it early tomorrow morning."
+Noms, noms, noms – Thune met with Trump Thursday to update him on his talks with Schumer to confirm the president's nominees. It's the biggest factor threatening to keep the Senate in town longer, given the need to secure unanimous consent to speed up confirmations.
+Trump isn't signaling that a deal is in hand. In a 9:52 p.m. Truth Social post Thursday, he wrote: "The Senate must stay in Session, taking no recess, until the entire Executive Calendar is CLEAR!!!" (Trump separately lashed out at Maine's senior senator, saying, "Republicans, when in doubt, vote the exact opposite of Senator Susan Collins.")
+Per Jordain Carney, Thune staff and Schumer staff are exchanging paper. Senators believe, if it were just up to them, the two leaders could get there. The bigger question is whether any deal they strike can get Trump's blessing, including Democrats' demand that the president unfreeze funding for certain agencies.
+"It would be easier if Chuck Schumer and Donald Trump would talk, bare-knuckled New Yorker to bare-knuckled New Yorker," Sen. Kevin Cramer says.
+TGIF. Email us: crazor@politico.com, cdumay@politico.com, mmccarthy@politico.com and bguggenheim@politico.com. Follow our live coverage at politico.com/congress.
+
+A fresh chapter for Playbook— same mission, new momentum. Jack Blanchard sets the scene. Dasha Burns brings the inside scoops. Adam Wren takes Washington into the weekend. Playbook delivers must-know reporting with style, clarity, and serious scoops. Subscribe now—and don't miss a beat.
+
+WHAT WE'RE WATCHINGWith help from Alec Snyder
+The House will meet for a pro forma session at 10 a.m.
+The Senate will vote to end debate on Brian Nesvik's nomination to be director of U.S. Fish and Wildlife Services and to confirm Casey Mulligan as chief counsel for advocacy at the SBA at 11 a.m.
+Pro subscribers receive this newsletter with a full congressional schedule and can browse our comprehensive calendar of markups, hearings and other notable events around Washington. Sign up for a demo.
+THE LEADERSHIP SUITE
+
+Sens. Susan Collins and Lisa Murkowski are noncommittal on chamber rule changes to advance Donald Trump's nominees. | Francis Chung/POLITICO
+
+Republicans eye rule changes to expedite confirmations
+Senate Republicans are warming to the idea of a rules change this fall that would let them confirm Trump's nominees at a faster clip.
+The discussion, which continued in a closed-door GOP lunch Thursday, comes as Democrats are continuing to slow-walk confirmations and Republicans' long-simmering frustrations are boiling over. GOP senators are so fed up that they opened the door this week to deploying the "nuclear option," which is when a party changes the rules with only a simple majority.
+Rules change proposals include cutting down on debate time and allowing for en bloc consideration of nominees. To move forward with these ideas though Thune would need support from nearly all Republicans, and it's not clear he has that yet.
+Sen. Thom Tillis told reporters Thursday that he doesn't "go nuclear." Collins and Sen. Lisa Murkowski are leaving the door open to supporting such an effort but are at this point noncommittal.
+Mullin works through member security plan
+The Senate isn't yet following in the House's footsteps when it comes to boosting funding for lawmaker security back home.
+Sen. Markwayne Mullin, the chair of the legislative branch appropriations subcommittee, says he's still working through potential security protocols. The Oklahoma Republican had previously said a "test program" could be unveiled as soon as August.
+"We're working with Jennifer [Hemingway], the Sergeant-at-Arms, and working through some protocols that may take place and working with state police," Mullin tells Calen. "But yes, we're very much looking into it."
+Before the House left for August recess, Speaker Mike Johnson and House Administration Chair Bryan Steil announced an "updated member security framework" in response to increased threats against lawmakers. Their plan will double funding for residential security to $20,000 per member.
+"You've obviously seen the kind of things that have happened in places like Minnesota," Sen. Martin Heinrich, Mullin's Democratic counterpart on appropriations, tells Calen. "So, we're taking that seriously and trying to come up with a plan for how to address it."
+Mullin says that the Senate plan would be "totally different" from the House version but isn't offering further details.
+He's back: Musk gives $10M to GOP
+
+Musk's donations were enough to make him the largest known individual donor to the main House and Senate GOP super PACs so far this year, Jessica Piper reports.
+POLICY RUNDOWN
+SENATORS DEFY TRUMP ON EDUCATION FUNDING — Senate appropriators are potentially setting up a fight with the Trump administration over its education priorities after approving a funding bill Thursday that would reject several proposals in the White House budget request.
+The Appropriations Committee's $79 billion funding bill for the Education Department does not include administration proposals to slash the Pell Grant award and eliminate preschool grants, Mackenzie Wilkes reports. The White House wants $66.7 billion for the agency.
+MCCONNELL PLAN CHALLENGES TRUMP ON PENTAGON BUDGET — Senate appropriators are also sidestepping the Trump administration's wishes for flat defense funding after approving a $21 billion hike for the Pentagon, Connor O'Brien and Joe Gould report.
+The plan, crafted by Defense Appropriations Chair Mitch McConnell, sets up a clash with the House, as well: The other chamber recently passed a plan that aligns more closely with the White House's budget proposal.
+The $853 billion Senate bill would allocate $800 million for a program that purchases new weapons for Ukraine, add $1.7 billion for security assistance for U.S. allies and give troops a 3.8 percent pay raise.
+In other defense news, Sen. Dan Sullivan's threats to block confirmation of Adm. Daryl Caudle to a top Navy post may have paid off. Hours after saying he would prevent the nominee from advancing without a commitment from the administration to reopen a naval air station in his home state of Alaska, Sullivan let Caudle sail through.
+It's not clear whether Sullivan got the assurances he was after, but his spokesperson said the senator and Defense Secretary Pete Hegseth had "a very constructive conversation," after which the Republican lawmaker agreed to lift his hold.
+Best of POLITICO Pro and E&E:
+
+Pro Labor: Senate appropriators toss aside Trump budget's Labor cuts
+Pro Education: Nominee for Education Department's top post withdraws name
+Pro Health: Senate spending bill amendment limits Trump administration power over NIH funding
+Pro Financial Services: Senate panel advances McKernan's nomination for senior Treasury job
+Pro Health: Senate appropriators approve $116.6B HHS funding bill
+
+THE BEST OF THE REST
+Bipartisan Pair of Senators Seeks $54.6 Billion in New Aid for Ukraine, from Robert Jimison at The New York Times
+Trump officials told Congress Israel agreed to match $30 million for GHF, sources say, from Jonathan Landay, Humeyra Pamuk and Daphne Psaledakis at Reuters
+CODEL CORNER
+WICKER'S TAIWAN TRIP — Senate Armed Services Chair Roger Wicker plans to lead a bipartisan group of lawmakers on a visit to Taiwan during recess. In addition to Taiwan, Wicker tells Joe that the delegation will also meet with officials in the Philippines, Guam and Pulau. The senators will have meetings with Indo-Pacific Command leaders, too. Wicker, a longtime Taiwan supporter, recently pushed for $1 billion in security aid for Taiwan in the annual reauthorization of national defense programs. On Wednesday, House Financial Services Chair French Hill and a bipartisan House delegation met with Taiwan's ambassador to Paraguay.
+CAPITOL HILL INFLUENCE
+Jordan Ebert has joined Mastercard as director of U.S. government affairs. He most recently served as banking and consumer finance counsel at Senate Banking.
+Megan Becker is joining McKinsey D.C. as manager of political affairs and leader of its new PAC. She previously was finance director at the NRSC.
+
+Curious how policy pros are staying ahead? Meet our Policy Intelligence Assistant—only available with a POLITICO Pro subscription. It combines POLITICO's trusted reporting with advanced AI to deliver sharper insights, faster answers, and two powerful new report builders that help you turn intelligence into action. Ready to experience it for yourself? Sign up for a demo and get 30 days free—no strings attached.
+
+TUNNEL TALK
+VP SCULPTURES ON THE WAY — Vice presidential busts of Joe Biden, Kamala Harris and Mike Pence are all "under contract" to be sculpted and added to the Capitol's collection, a member of the Senate curator's team said Thursday while visiting the Senate press gallery.
+HAPPY BIRTHDAY
+Rep. Josh Harder … former Reps. Rick Boucher, Sue Myrick, Van Taylor and Madison Cawthorn (3-0) … former Sen. Al D'Amato … Howard Kurtz … Ed Gillespie of AT&T … Mikayla DeMasi … POLITICO's Hannah Northey … Clare Foran … Karen Marangi … Drew Littman of Brownstein … Roy Loewenstein … BGR Group's Ansley Haulbrook
+TRIVIA
+THURSDAY'S ANSWER: Mike Shine correctly answered that Henry Clay was the first speaker of the House to lie in state in the Capitol Rotunda.
+TODAY'S QUESTION, from Mike: Who was the first president to have a pilot's license?
+The first person to correctly guess gets a mention in the next edition of Inside Congress. Send your answers to insidecongress@politico.com.
+
+Follow us on X
+
+Benjamin Guggenheim @ben_guggenheim
+Mia McCarthy @Reporter_Mia
+Calen Razor @calenrazor
+
+Follow us
+
+To change your alert settings, please log in at
+ https://login.politico.com/?redirect=https%3A%2F%2Fwww.politico.com/settings
+
+===============================================================
+5. EXPECTED OUTPUT - COMPREHENSIVE EXTRACTION
+===============================================================
+
+This newsletter should extract approximately 25-30+ people:
+
+POLITICAL OFFICIALS (15+):
+- Donald Trump (President, Republican)
+- John Thune (Senate Majority Leader, Republican, SD) 
+- Chuck Schumer (Senate Minority Leader, Democrat, NY)
+- Chris Van Hollen (Senator, Democrat, MD)
+- Jerry Moran (Senator, Republican, KS)
+- Amy Klobuchar (Senator, Democrat, MN)
+- John Kennedy (Senator, Republican, LA)
+- Susan Collins (Senator, Republican, ME)
+- Lisa Murkowski (Senator, Republican, AK)
+- Thom Tillis (Senator, Republican, NC)
+- Markwayne Mullin (Senator, Republican, OK)
+- Martin Heinrich (Senator, Democrat, NM)
+- Mike Johnson (House Speaker, Republican)
+- Bryan Steil (House Admin Chair, Republican)
+- Mitch McConnell (Senator, Republican, KY)
+- Dan Sullivan (Senator, Republican, AK)
+- Kevin Cramer (Senator, Republican, ND)
+- Roger Wicker (Senator, Republican, MS)
+- French Hill (Representative, Republican)
+- Josh Harder (Representative)
+- Brooke Rollins (Agriculture Secretary)
+- Pete Hegseth (Defense Secretary)
+
+JOURNALISTS/REPORTERS (8+):
+- Calen Razor (Politico)
+- Cassandra Dumay (Politico)
+- Mia McCarthy (Politico)
+- Benjamin Guggenheim (Politico)
+- Katherine Tully-McManus (Politico)
+- Jennifer Scholtes (Politico)
+- Jordain Carney (Politico)
+- Jessica Piper (Politico)
+- Mackenzie Wilkes (Politico)
+- Connor O'Brien (Politico)
+- Joe Gould (Politico)
+- Francis Chung (Politico Photographer)
+- Jack Blanchard (Playbook)
+- Dasha Burns (Playbook)
+- Adam Wren (Playbook)
+- Hannah Northey (Politico)
+- Clare Foran (Politico)
+
+STAFF/PRIVATE SECTOR (5+):
+- Jordan Ebert (Mastercard, former Senate Banking)
+- Megan Becker (McKinsey, former NRSC)
+- Jennifer Hemingway (Senate Sergeant-at-Arms)
+- Brian Nesvik (Nominee, Fish & Wildlife)
+- Casey Mulligan (Nominee, SBA)
+- Daryl Caudle (Admiral, Navy nominee)
+
+OTHER MENTIONS:
+- Joe Biden, Kamala Harris, Mike Pence (VP sculptures)
+- Various birthday mentions and former officials
+
+===============================================================
+6. DIAGNOSTIC TESTS & TROUBLESHOOTING
+===============================================================
+
+ISSUE: Haiku not producing JSON
+TESTS:
+1. Try with just the simple prompt (section 1) - does it return valid JSON?
+2. Reduce temperature to 0.1 - does consistency improve?
+3. Try shorter text sample (first 3000 chars) - does it work better?
+4. Check max_tokens - are responses getting truncated?
+
+ISSUE: Only extracting 3-5 people instead of 25+
+TESTS:
+1. Count people in manual review - are they actually there?
+2. Try different confidence instructions - "be more inclusive"
+3. Add explicit instruction: "This text contains 25+ named people"
+4. Test with bullet-point format instead of JSON first
+
+ISSUE: Sonnet not being ideal
+TESTS:
+1. Remove references to "uncertain" primary results from prompt
+2. Test Sonnet independently without primary results context
+3. Try higher temperature (0.5) for more creative extraction
+4. Add explicit examples of the person types to find
+
+SUCCESS CRITERIA:
+- JSON parses without errors
+- Extracts 20+ people per newsletter
+- Includes mix of officials, journalists, staff
+- Confidence scores are reasonable (0.7-0.99)
+- Relationships and organizations are identified
+- Processing is consistent across multiple runs
+
+===============================================================
+7. QUICK START INSTRUCTIONS
+===============================================================
+
+1. Open Anthropic Workbench
+2. Copy the SIMPLIFIED HAIKU PROMPT (section 1)
+3. Paste the sample newsletter text where indicated
+4. Set model: claude-3-5-haiku-20241022
+5. Set temperature: 0.3, max_tokens: 8192
+6. Submit and check:
+   - Does it return valid JSON?
+   - How many people were extracted?
+   - Are there any parsing errors?
+
+If Haiku works well, test Sonnet with prompt from section 2.
+If Haiku fails, try temperature adjustments and shorter text samples.
+
+Compare results against expected output (section 5) to measure success.
+
+Document findings and report back which prompts/parameters work best.

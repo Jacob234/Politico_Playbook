@@ -1,0 +1,1 @@
+# Configuration system for 4-stage political newsletter processing pipeline

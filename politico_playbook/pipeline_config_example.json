@@ -1,0 +1,96 @@
+{
+  "config_version": "2.0.0",
+  "created_at": "2025-08-26T00:00:00",
+  "description": "Example configuration for 4-Stage Political Newsletter Processing Pipeline",
+  "environment": "development",
+  
+  "anthropic_api_key": null,
+  
+  "stage1": {
+    "email_patterns": ["*.html", "*.eml", "*.msg"],
+    "remove_html_tags": true,
+    "normalize_whitespace": true,
+    "extract_metadata": true,
+    "output_format": "json",
+    "include_raw_html": false
+  },
+  
+  "stage2": {
+    "model": "claude-sonnet-4-20250514",
+    "temperature": 0.3,
+    "max_tokens": 8192,
+    "batch_size": 5,
+    "retry_attempts": 3,
+    "timeout_seconds": 300,
+    "max_cost_per_batch": 10.0,
+    "cost_tracking_enabled": true,
+    "min_entities_per_newsletter": 5,
+    "min_confidence_threshold": 0.7,
+    "extract_all_categories": true,
+    "requests_per_minute": 60,
+    "concurrent_requests": 3
+  },
+  
+  "stage3": {
+    "enable_name_fuzzy_matching": true,
+    "fuzzy_match_threshold": 0.85,
+    "deduplicate_entities": true,
+    "track_entity_evolution": true,
+    "calculate_influence_scores": true,
+    "generate_entity_ids": true,
+    "export_registries": true,
+    "validate_relationships": true,
+    "batch_processing": true,
+    "cache_entity_lookups": true
+  },
+  
+  "stage4": {
+    "calculate_centrality_metrics": true,
+    "detect_communities": true,
+    "min_community_size": 3,
+    "generate_trends": true,
+    "min_trend_strength": 0.5,
+    "trend_analysis_window_days": 30,
+    "max_nodes_for_analysis": 1000,
+    "include_temporal_snapshots": true,
+    "export_gephi_format": true,
+    "export_csv_timeseries": true,
+    "export_json_complete": true
+  },
+  
+  "processing_limits": {
+    "max_newsletters_total": 10,
+    "max_newsletters_per_stage": null,
+    "max_processing_time_minutes": 180,
+    "max_memory_mb": 4096,
+    "clear_cache_between_stages": true,
+    "max_worker_threads": 4,
+    "enable_multiprocessing": false
+  },
+  
+  "output": {
+    "base_output_dir": "data",
+    "structured_subdir": "structured",
+    "enhanced_subdir": "structured/claude_enhanced",
+    "normalized_subdir": "structured/database_normalized",
+    "analysis_subdir": "analysis/temporal_results",
+    "use_timestamps_in_filenames": true,
+    "compress_large_files": false,
+    "generate_summary_reports": true,
+    "include_performance_metrics": true,
+    "export_configuration_snapshots": true,
+    "cleanup_intermediate_files": false,
+    "archive_old_results": false
+  },
+  
+  "error_handling": {
+    "continue_on_errors": true,
+    "max_errors_per_stage": 10,
+    "retry_failed_items": true,
+    "log_level": "INFO",
+    "log_file": "pipeline.log",
+    "detailed_error_reports": true,
+    "save_partial_results": true,
+    "enable_checkpoint_recovery": true
+  }
+}
