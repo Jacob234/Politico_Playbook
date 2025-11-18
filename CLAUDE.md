@@ -25,8 +25,10 @@ This is a proof-of-concept NLP data extraction tool for analyzing Politico Playb
 - ✅ Claude NLP processor implemented (`politico_playbook/src/processing/claude_nlp_processor.py`)
 - ✅ Escalation logic optimized (threshold 0.85→0.70, removed person count limit)
 - ✅ Validation framework created (`politico_playbook/validation/`)
+- ✅ **RSS RESEARCH COMPLETED**: Official RSS feeds found for National Playbook + Politico Pulse
 - ⚠️ **NEEDS WORK**: Low recall rates (11-36% vs 70% target) - see analysis
 - ⚠️ **IN VALIDATION**: System being tested against ground truth
+- 🔄 **NEXT**: Implement RSS client for more robust data collection
 - ❌ Database storage not yet implemented
 - ❌ User interface not yet built
 
@@ -47,12 +49,15 @@ politico_playbook/
 ├── docs/
 │   ├── claude_nlp_processor.md            # Claude processor documentation
 │   ├── claude_nlp_performance_report.md   # Original performance report
-│   └── claude_nlp_analysis_2025-11-18.md  # Comprehensive analysis & findings
+│   ├── claude_nlp_analysis_2025-11-18.md  # Comprehensive analysis & findings
+│   ├── POLITICO_ACCESS_RESEARCH.md        # RSS/API research findings
+│   └── POLITICO_WEB_SCRAPER_PLAN.md       # Web scraping plan (deprioritized)
 ├── src/
 │   ├── __init__.py
 │   ├── extraction/
 │   │   ├── __init__.py
 │   │   ├── email_client.py    # Gmail connection (SECURED with env vars)
+│   │   ├── rss_client.py      # RSS feed fetcher (TO BE IMPLEMENTED)
 │   │   └── html_parser.py     # HTML to text conversion
 │   ├── processing/
 │   │   ├── __init__.py
@@ -93,6 +98,61 @@ politico_playbook/
 └── to_do.md
 ```
 
+## Data Collection Strategy
+
+### Hybrid Approach: RSS + Email ✅ RECOMMENDED
+
+Based on comprehensive research (see `docs/POLITICO_ACCESS_RESEARCH.md`), we use a **hybrid approach** for newsletter collection:
+
+#### RSS Feeds (Primary for National Coverage)
+**Status:** ✅ Official feeds available
+
+**Coverage:**
+- ✅ **National Playbook**: `http://www.politico.com/rss/playbook.xml`
+- ✅ **Politico Pulse**: `http://www.politico.com/rss/politicopulse.xml`
+
+**Advantages:**
+- Official and legal (intended for syndication)
+- Real-time updates
+- Clean, structured data
+- No authentication required
+- Zero rate limiting concerns
+
+**Implementation:** RSS client module (`rss_client.py`) - IN DEVELOPMENT
+
+#### Email Extraction (Required for State Playbooks)
+**Status:** ✅ Implemented and working
+
+**Coverage:**
+- ✅ **Florida Playbook** (no RSS feed available)
+- ✅ **New York Playbook** (no RSS feed available)
+- ✅ **California Playbook** (no RSS feed available)
+
+**Current Tool:** `politico_playbook/src/extraction/email_client.py`
+
+**Why Still Needed:** State playbooks do NOT have public RSS feeds
+
+#### Web Scraping (NOT RECOMMENDED)
+**Status:** ⚠️ Deprioritized
+
+- Plan documented in `docs/POLITICO_WEB_SCRAPER_PLAN.md`
+- Only consider for historical backfill if gaps exist
+- Legal/ethical concerns
+- Maintenance burden (breaks with site changes)
+- **Use RSS + Email instead**
+
+### Newsletter Coverage Matrix
+
+| Newsletter Type | RSS Available | Email Available | Current Method | Future Method |
+|----------------|---------------|-----------------|----------------|---------------|
+| National Playbook | ✅ Yes | ✅ Yes | Email | **RSS (Primary)** |
+| Politico Pulse | ✅ Yes | ✅ Yes | Email | **RSS (Primary)** |
+| Florida Playbook | ❌ No | ✅ Yes | Email | **Email (Only option)** |
+| New York Playbook | ❌ No | ✅ Yes | Email | **Email (Only option)** |
+| California Playbook | ❌ No | ✅ Yes | Email | **Email (Only option)** |
+
+**Result:** 40% of newsletters can use RSS (National + Pulse), 60% require email (State playbooks)
+
 ## Key Development Commands
 
 ```bash
@@ -104,6 +164,9 @@ pip install -r requirements.txt
 # Run email extraction
 cd politico_playbook
 python src/extraction/email_client.py
+
+# Run RSS extraction (TO BE IMPLEMENTED)
+python src/extraction/rss_client.py
 
 # Code quality
 black politico_playbook/     # Format code
@@ -167,22 +230,26 @@ python -c "from politico_playbook.src.extraction.email_client import main; print
 ## Priority Tasks (Updated November 2025)
 
 ### Immediate (Current Sprint)
-1. **HIGH**: ⚠️ **IN PROGRESS** - Validate Claude NLP processor with ground truth annotations
-2. **HIGH**: ⚠️ **IN PROGRESS** - Improve recall from 11-36% to 70%+ (requires prompt optimization)
-3. **HIGH**: **NEXT** - Update performance report with accurate metrics
-4. **MEDIUM**: **NEXT** - Test optimized escalation logic (0.70 threshold, no person limit)
+1. **HIGH**: 🔄 **IN PROGRESS** - Implement RSS client for National Playbook and Politico Pulse
+   - RSS feeds discovered: official, legal, reliable alternative to email
+   - Expected timeline: 1-2 weeks
+   - See `docs/POLITICO_ACCESS_RESEARCH.md` for details
+2. **HIGH**: ⚠️ **IN PROGRESS** - Validate Claude NLP processor with ground truth annotations
+3. **HIGH**: ⚠️ **IN PROGRESS** - Improve recall from 11-36% to 70%+ (requires prompt optimization)
+4. **MEDIUM**: Test optimized escalation logic (0.70 threshold, no person limit)
 
 ### Short Term (Next 2-4 Weeks)
-5. **HIGH**: Optimize prompts to capture journalists and political staff
-6. **HIGH**: Fix NULL field issues (seen in CA Playbook extraction)
-7. **MEDIUM**: Complete validation testing on all 20 newsletters
-8. **MEDIUM**: Production readiness decision (target: F1 > 0.70)
+5. **HIGH**: Build unified fetcher combining RSS + Email sources
+6. **HIGH**: Optimize prompts to capture journalists and political staff
+7. **HIGH**: Fix NULL field issues (seen in CA Playbook extraction)
+8. **MEDIUM**: Complete validation testing on all 20 newsletters
+9. **MEDIUM**: Production readiness decision (target: F1 > 0.70)
 
 ### Medium Term (Next 1-2 Months)
-9. **MEDIUM**: Build SQLite database storage system
-10. **MEDIUM**: Implement automated quality monitoring
-11. **LOW**: Complete text processing pipeline
-12. **LOW**: Build visualization interface
+10. **MEDIUM**: Build SQLite database storage system
+11. **MEDIUM**: Implement automated quality monitoring
+12. **LOW**: Complete text processing pipeline
+13. **LOW**: Build visualization interface
 
 ### Completed ✅
 - ✅ Implement NLP entity extraction
@@ -191,6 +258,7 @@ python -c "from politico_playbook.src.extraction.email_client import main; print
 - ✅ Optimize escalation logic (40% cost reduction)
 - ✅ Create validation framework
 - ✅ Comprehensive performance analysis
+- ✅ Research Politico official access methods (API, RSS, scraping)
 
 ## Political NLP Enhancement - Phase 1: Claude Integration (IMPLEMENTED & OPTIMIZED)
 
