@@ -73,7 +73,7 @@ class ClaudeNLPProcessor:
         self.sonnet_model = "claude-3-5-sonnet-20241022"
         
         # Processing thresholds
-        self.confidence_threshold = 0.85  # Below this triggers Sonnet escalation
+        self.confidence_threshold = 0.70  # Below this triggers Sonnet escalation (lowered from 0.85)
         self.max_tokens_haiku = 20000
         self.max_tokens_sonnet = 30000
         
@@ -404,10 +404,10 @@ Provide your comprehensive enhanced analysis:"""
         total_uncertain = len(uncertain_people) + len(uncertain_entities)
         total_people = len(people) + len(entities)
         
-        # Escalate if overall confidence is low, multiple uncertain people, or too many people (suggests errors)
-        return (overall_confidence < self.confidence_threshold or 
-                total_uncertain > 3 or 
-                total_people > 25)  # More lenient since we want comprehensive extraction
+        # Escalate if overall confidence is low or multiple uncertain people
+        # Removed person count limit - comprehensive extraction is the goal, not a bug
+        return (overall_confidence < self.confidence_threshold or
+                total_uncertain > 3)
     
     def _merge_results(self, primary: Dict, enhanced: Dict) -> Dict:
         """Merge primary and enhanced results, prioritizing enhanced (higher confidence) versions."""
