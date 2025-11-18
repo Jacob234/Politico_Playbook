@@ -1,0 +1,32 @@
+{
+  "newsletter_file": "YYYY-MM-DD_HHMMSS_email.json",
+  "newsletter_type": "national_playbook|new_york_playbook|florida_playbook|california_playbook|politico_pulse|other",
+  "subject_line": "Newsletter subject line",
+  "annotator": "Your Name",
+  "annotation_date": "YYYY-MM-DD",
+  "ground_truth_entities": [
+    {
+      "name": "Full Name",
+      "category": "political_official|journalist|political_staff|lobbyist|business_leader|other",
+      "role": "Current title/position",
+      "party": "Republican|Democratic|Independent|null",
+      "state": "State abbreviation or null",
+      "employer": "Organization/company or null",
+      "context": "What they did/said in this newsletter",
+      "line_reference": "Where in newsletter (beginning/middle/end or approximate location)",
+      "confidence": 1.0,
+      "notes": "Any additional notes or edge cases"
+    }
+  ],
+  "total_entities": 0,
+  "entity_breakdown": {
+    "political_official": 0,
+    "journalist": 0,
+    "political_staff": 0,
+    "lobbyist": 0,
+    "business_leader": 0,
+    "other": 0
+  },
+  "annotation_time_minutes": 0,
+  "notes": "Overall notes about the newsletter or annotation process"
+}

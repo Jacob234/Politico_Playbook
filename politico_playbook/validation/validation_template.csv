@@ -1,0 +1,4 @@
+name,category,role,party,state,employer,context,line_reference,confidence,notes
+John Doe,political_official,Senator,Republican,TX,,Voted on bill XYZ,Middle section,1.0,
+Jane Smith,journalist,Reporter,,,,Wrote article about topic,Byline,1.0,Newsletter author
+Bob Johnson,political_staff,Chief of Staff,,,White House,Advised on policy,End section,0.9,Title unclear
