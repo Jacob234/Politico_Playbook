@@ -26,25 +26,23 @@ political intelligence data.
 ### Current Implementation Status
 
 **v0.2 Multi-newsletter pipeline (current)**
-- ✅ Gmail API + OAuth ingestion (`src/ingestion/gmail_client.py`)
-- ✅ SQLite raw email store, idempotent on `gmail_message_id` (`src/ingestion/raw_store.py`)
+- ✅ Gmail API + OAuth ingestion (`ingestion/gmail_client.py`)
+- ✅ SQLite raw email store, idempotent on `gmail_message_id` (`ingestion/raw_store.py`)
 - ✅ Newsletter registry (27 newsletters in `config/newsletters.yaml`)
 - ✅ Section taxonomy with per-newsletter overrides (`config/section_taxonomy.yaml`)
-- ✅ Section-aware parser (`src/ingestion/parser_base.py`)
-- ✅ OpenRouter client, model-swappable via `MODEL_ID` env var (`src/llm/openrouter_client.py`)
+- ✅ Section-aware parser (`ingestion/parser_base.py`)
+- ✅ OpenRouter client, model-swappable via `MODEL_ID` env var (`llm/openrouter_client.py`)
 - ✅ Section-typed extraction prompts (`config/extraction_prompts.yaml`)
-- ✅ Stage 2 extractor with structured JSON output (`src/processing/section_extractor.py`)
+- ✅ Stage 2 extractor with structured JSON output (`processing/section_extractor.py`)
 - ✅ Single CLI runner: `backfill | incremental | inventory | extract`
 - ⏳ Stage 3 (entity normalization/dedup) and Stage 4 (graph/temporal) — not yet
   ported to the new SQLite-backed pipeline; old file-based versions remain in
-  `src/processing/database_normalizer.py` and `temporal_analyzer.py`.
+  `processing/database_normalizer.py` and `temporal_analyzer.py`.
 
-**v0.1 POC (deprecated, preserved at git tag `v0.1-poc-single-source`)**
-- IMAP App Password ingestion, single newsletter (Playbook), 4-day window
-- Direct Anthropic SDK calls, two-tier Haiku/Sonnet routing
-- File-based raw HTML / structured JSON
-- Old code remains at `src/extraction/` and `src/processing/claude_nlp_processor.py`
-  (marked deprecated). Do not extend; new work goes in the v0.2 modules.
+**v0.1 POC** — preserved at git tag `v0.1-poc-single-source`. All v0.1 code
+(IMAP ingestion, direct Anthropic SDK extraction, file-based pipeline) was
+removed from the working tree on 2026-05-05. Recover any specific v0.1 file
+with `git checkout v0.1-poc-single-source -- <path>`.
 
 ## Project Structure (v0.2)
 
@@ -53,34 +51,24 @@ politico_playbook/
 ├── config/
 │   ├── newsletters.yaml          # 27 newsletters keyed by sender slug
 │   ├── section_taxonomy.yaml     # Header → semantic-type mappings
-│   ├── extraction_prompts.yaml   # Stage 2 prompts + JSON schemas
-│   └── lexicon.json              # Legacy (v0.1)
-├── data/
-│   ├── raw_emails.db             # SQLite raw store (gitignored)
-│   ├── raw/                      # Legacy v0.1 HTML files (gitignored)
-│   └── ...                       # Legacy v0.1 outputs
-├── src/
-│   ├── ingestion/                # NEW (v0.2) — Gmail → SQLite
-│   │   ├── gmail_client.py       # OAuth API client
-│   │   ├── newsletter_registry.py
-│   │   ├── parser_base.py        # Section-aware preprocessing
-│   │   ├── raw_store.py          # SQLite raw_emails table
-│   │   └── runner.py             # CLI: backfill / incremental / inventory / extract
-│   ├── llm/                      # NEW (v0.2) — Model-agnostic
-│   │   └── openrouter_client.py  # OpenAI SDK → OpenRouter base URL
-│   ├── processing/
-│   │   ├── section_extractor.py  # NEW (v0.2) — Stage 2 via OpenRouter
-│   │   ├── claude_nlp_processor.py   # DEPRECATED (v0.1)
-│   │   ├── database_normalizer.py    # Stage 3 (file-based, not yet ported)
-│   │   ├── temporal_analyzer.py      # Stage 4 (file-based, not yet ported)
-│   │   ├── html_to_json.py
-│   │   └── nlp_processor.py
-│   ├── extraction/               # DEPRECATED (v0.1) — IMAP path
-│   │   ├── email_client.py
-│   │   └── html_parser.py
-│   ├── models/schemas.py         # JSON schemas (legacy v0.1)
-│   ├── pipeline_orchestrator.py  # Legacy v0.1 orchestrator
-│   └── utils/
+│   └── extraction_prompts.yaml   # Stage 2 prompts + JSON schemas
+├── data/                         # SQLite stores (gitignored)
+│   └── raw_emails.db             # raw_emails table + extractions table
+├── ingestion/                    # Gmail → SQLite
+│   ├── gmail_client.py           # OAuth API client
+│   ├── newsletter_registry.py
+│   ├── parser_base.py            # Section-aware preprocessing
+│   ├── raw_store.py              # SQLite raw_emails table
+│   └── runner.py                 # CLI: backfill / incremental / inventory / extract
+├── llm/                          # Model-agnostic LLM access
+│   └── openrouter_client.py      # OpenAI SDK → OpenRouter base URL
+├── processing/
+│   ├── section_extractor.py      # Stage 2 via OpenRouter
+│   ├── database_normalizer.py    # Stage 3 (file-based, to be ported to SQLite)
+│   └── temporal_analyzer.py      # Stage 4 (file-based, to be ported to SQLite)
+├── models/
+│   └── schemas.py                # JSON schemas (legacy, may still be useful)
+├── utils/
 └── tests/
 ```
 
@@ -118,25 +106,25 @@ All operations go through one CLI runner:
 
 ```bash
 # Pull all matching messages from Gmail (idempotent — safe to re-run)
-python -m politico_playbook.src.ingestion.runner backfill
+python -m politico_playbook.ingestion.runner backfill
 
 # Pull only messages newer than the last stored message
-python -m politico_playbook.src.ingestion.runner incremental
+python -m politico_playbook.ingestion.runner incremental
 
 # Restrict to a single newsletter
-python -m politico_playbook.src.ingestion.runner backfill --newsletter politicoplaybook
+python -m politico_playbook.ingestion.runner backfill --newsletter politicoplaybook
 
 # Cap fetched messages (testing)
-python -m politico_playbook.src.ingestion.runner backfill --limit 50
+python -m politico_playbook.ingestion.runner backfill --limit 50
 
 # Show what's currently in the local DB
-python -m politico_playbook.src.ingestion.runner inventory
+python -m politico_playbook.ingestion.runner inventory
 
 # Run Stage 2 entity extraction on all 'pending' messages
-python -m politico_playbook.src.ingestion.runner extract
+python -m politico_playbook.ingestion.runner extract
 
 # Process only N pending (testing — keeps spend low)
-python -m politico_playbook.src.ingestion.runner extract --limit 5
+python -m politico_playbook.ingestion.runner extract --limit 5
 ```
 
 ### Querying the raw store directly
@@ -327,7 +315,7 @@ flake8==6.1.0
 ### v0.1 → v0.2 (2026-05-05) — Multi-newsletter ingestion redesign
 
 **What changed**:
-- IMAP App Password → Gmail API + OAuth (`src/ingestion/gmail_client.py`)
+- IMAP App Password → Gmail API + OAuth (`ingestion/gmail_client.py`)
 - File-based raw HTML → SQLite `raw_emails.db` keyed on `gmail_message_id`
 - Single newsletter (Playbook) → 27 newsletters across the Politico landscape,
   driven by `config/newsletters.yaml`
@@ -336,22 +324,24 @@ flake8==6.1.0
   (model-agnostic; swap providers via `MODEL_ID` env var)
 - Whole-body LLM extraction → section-aware extraction with section-typed
   prompts and JSON schemas
-- Multiple scripts → single CLI runner: `python -m politico_playbook.src.ingestion.runner <mode>`
+- Multiple scripts → single CLI runner: `python -m politico_playbook.ingestion.runner <mode>`
+- `politico_playbook/src/<x>` flattened to `politico_playbook/<x>` (terser
+  imports, modern PEP 518 layout)
+- v0.1 code paths (`src/extraction/`, `pipeline_orchestrator.py`,
+  `claude_nlp_processor.py`, `html_to_json.py`, `nlp_processor.py`,
+  `main.py`, etc.) deleted from the working tree
 
 **What was kept**:
-- `src/processing/database_normalizer.py` and `temporal_analyzer.py`
-  (Stages 3-4) — still file-based, to be ported.
-- `src/extraction/` — kept as a v0.1 reference path. Marked deprecated.
-- `src/processing/claude_nlp_processor.py` — kept for v0.1 compatibility.
+- `processing/database_normalizer.py` and `temporal_analyzer.py`
+  (Stages 3-4) — still file-based, to be ported to read from the
+  SQLite `extractions` table.
 
-**Recovery**: `git checkout v0.1-poc-single-source` returns to the original
-single-source POC state.
+**Recovery**: `git checkout v0.1-poc-single-source -- <path>` retrieves any
+specific v0.1 file. `git checkout v0.1-poc-single-source` returns the entire
+working tree to the POC state.
 
 ### Pre-v0.1 → v0.1 (legacy) — Initial reorganization
 
-- `src/data/newsletters/` → `politico_playbook/data/raw/`
-- `src/data/text/` → `politico_playbook/data/processed/`
-- `src/email_extractor.py` → `politico_playbook/src/extraction/email_client.py`
-- `src/html_formatter.py` → `politico_playbook/src/extraction/html_parser.py`
-- `src/main.py` → `politico_playbook/main.py`
-- `lexicon.json` → `politico_playbook/config/lexicon.json`
+Earlier reorganization that moved scattered scripts into a structured Python
+package. Predates the v0.2 architecture; specific paths from this stage no
+longer exist in the working tree but are recoverable via `v0.1-poc-single-source`.

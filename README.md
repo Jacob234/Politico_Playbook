@@ -49,16 +49,16 @@ All operations go through one CLI runner:
 
 ```bash
 # Pull all matching messages from Gmail (idempotent)
-python -m politico_playbook.src.ingestion.runner backfill
+python -m politico_playbook.ingestion.runner backfill
 
 # Pull only what's new since the last run
-python -m politico_playbook.src.ingestion.runner incremental
+python -m politico_playbook.ingestion.runner incremental
 
 # Show what's in the local DB
-python -m politico_playbook.src.ingestion.runner inventory
+python -m politico_playbook.ingestion.runner inventory
 
 # Run section-aware Stage 2 extraction on all 'pending' messages
-python -m politico_playbook.src.ingestion.runner extract --limit 5
+python -m politico_playbook.ingestion.runner extract --limit 5
 ```
 
 Subcommand flags: `--newsletter <slug>` to scope to one newsletter,
@@ -92,8 +92,9 @@ pytest tests/
 
 ## Migration from v0.1
 
-v0.1 (single-source IMAP, direct Anthropic SDK, file-based) is preserved at
-git tag `v0.1-poc-single-source`. The old `src/extraction/` and
-`src/processing/claude_nlp_processor.py` paths are kept in the codebase but
-marked deprecated. New work goes in `src/ingestion/`, `src/llm/`, and
-`src/processing/section_extractor.py`.
+v0.1 (single-source IMAP, direct Anthropic SDK, file-based pipeline) is
+preserved at git tag `v0.1-poc-single-source`. The v0.1 code paths were
+deleted from the working tree on 2026-05-05; recover any specific file with
+`git checkout v0.1-poc-single-source -- <path>`. Active code lives in
+`politico_playbook/ingestion/`, `politico_playbook/llm/`, and
+`politico_playbook/processing/section_extractor.py`.
