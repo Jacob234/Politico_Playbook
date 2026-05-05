@@ -53,3 +53,17 @@ logs/
 # Data (optional - decide if you want to track)
 data/cache/
 data/raw/*.html
+data/raw_emails.db
+data/raw_emails.db-journal
+data/raw_emails.db-wal
+data/raw_emails.db-shm
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# User scratch / drafts
+Schema.rtf
+
+# OAuth client secrets (NEVER commit)
+oauth_client.json
