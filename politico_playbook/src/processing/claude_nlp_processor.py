@@ -1,9 +1,23 @@
 #!/usr/bin/env python3
 """
-Claude-Based Political Newsletter NLP Processor
+Claude-Based Political Newsletter NLP Processor — DEPRECATED
 
-High-accuracy political entity and relationship extraction using Claude 3.5 Haiku and Sonnet.
-Two-tier system: Haiku for primary extraction, Sonnet for complex/uncertain cases.
+This module is the v0.1 single-source extraction path: direct Anthropic SDK
+calls, two-tier Haiku/Sonnet routing, blob-text extraction (no section
+awareness), file-based input.
+
+The current pipeline uses:
+    politico_playbook.src.processing.section_extractor.SectionExtractor
+
+which:
+  - Reads from the SQLite raw_emails store (idempotent)
+  - Calls OpenRouter via the model-agnostic OpenRouterClient (model-swappable)
+  - Uses section-typed prompts from config/extraction_prompts.yaml
+  - Persists structured JSON output to the extractions table
+
+This file remains for reference and to support recovery via the
+v0.1-poc-single-source git tag. Do not extend it; new work goes in
+section_extractor.py.
 """
 
 import json

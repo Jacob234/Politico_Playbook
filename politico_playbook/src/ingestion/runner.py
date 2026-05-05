@@ -3,12 +3,15 @@
 Modes:
   backfill    Pull all matching messages from Gmail (idempotent).
   incremental Pull only messages newer than the last stored message.
+  inventory   Report what's currently in the DB (no fetching).
+  extract     Run Stage 2 entity extraction on pending messages via OpenRouter.
 
 Examples:
   python -m politico_playbook.src.ingestion.runner backfill
   python -m politico_playbook.src.ingestion.runner incremental
   python -m politico_playbook.src.ingestion.runner backfill --newsletter politicoplaybook --limit 50
-  python -m politico_playbook.src.ingestion.runner inventory  # report what's in the DB
+  python -m politico_playbook.src.ingestion.runner inventory
+  python -m politico_playbook.src.ingestion.runner extract --limit 10
 """
 
 from __future__ import annotations
@@ -155,6 +158,36 @@ def run_ingestion(
     return summary
 
 
+def _run_extract(args, project_root: Path, db_path: Path, registry: NewsletterRegistry) -> int:
+    """Run Stage 2 extraction. Imported lazily so ingestion-only runs don't
+    need OpenRouter credentials.
+    """
+    from politico_playbook.src.ingestion.parser_base import SectionTaxonomy
+    from politico_playbook.src.llm.openrouter_client import OpenRouterClient
+    from politico_playbook.src.processing.section_extractor import (
+        PromptRegistry,
+        SectionExtractor,
+    )
+
+    taxonomy_path = project_root / "politico_playbook" / "config" / "section_taxonomy.yaml"
+    prompts_path = project_root / "politico_playbook" / "config" / "extraction_prompts.yaml"
+
+    taxonomy = SectionTaxonomy.load(taxonomy_path)
+    prompts = PromptRegistry.load(prompts_path)
+    llm = OpenRouterClient()
+
+    extractor = SectionExtractor(
+        db_path=db_path,
+        registry=registry,
+        taxonomy=taxonomy,
+        prompts=prompts,
+        llm=llm,
+    )
+    summary = extractor.process_pending(limit=args.limit)
+    print(f"Extraction summary: {summary}")
+    return 0
+
+
 def report_inventory(store: RawEmailStore, registry: NewsletterRegistry) -> None:
     counts = store.counts_by_newsletter()
     total = store.total_count()
@@ -171,9 +204,9 @@ def main(argv: Optional[list[str]] = None) -> int:
     load_dotenv(dotenv_path=_project_root() / ".env")
 
     parser = argparse.ArgumentParser(description="Politico newsletter ingestion runner")
-    parser.add_argument("mode", choices=["backfill", "incremental", "inventory"])
+    parser.add_argument("mode", choices=["backfill", "incremental", "inventory", "extract"])
     parser.add_argument("--newsletter", help="Restrict to a single newsletter slug")
-    parser.add_argument("--limit", type=int, help="Cap fetched messages (testing)")
+    parser.add_argument("--limit", type=int, help="Cap fetched/processed messages (testing)")
     parser.add_argument("--log-level", default=os.getenv("LOG_LEVEL", "INFO"))
     args = parser.parse_args(argv)
 
@@ -189,6 +222,9 @@ def main(argv: Optional[list[str]] = None) -> int:
     if args.mode == "inventory":
         report_inventory(store, registry)
         return 0
+
+    if args.mode == "extract":
+        return _run_extract(args, project_root, db_path, registry)
 
     gmail = GmailClient(
         client_secrets_path=os.getenv(

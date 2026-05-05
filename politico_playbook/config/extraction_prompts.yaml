@@ -1,0 +1,264 @@
+# Stage 2 extraction prompts — section-type-aware.
+#
+# Different section_types call for different extraction strategies. A
+# `personnel_change` section is a numbered list of name/role pairs;
+# a `lead_story` is free-form prose with embedded entities; a `social_graph`
+# is a comma-separated name dump. One prompt does NOT fit all.
+#
+# This file is data — edit prompts here without touching Python.
+#
+# Each entry has:
+#   system:  Cached system prompt establishing the LLM's role + constraints.
+#   user_template: Template with {section_body} placeholder. Plus optional
+#                  {section_type}, {newsletter_slug}, {received_date}.
+#   json_schema:   JSON schema for structured output. Stage 2 expects this
+#                  shape; downstream stages depend on it.
+
+# --- Default fallback for sections with section_type='unclassified' ---
+unclassified:
+  system: |
+    You are a political newsletter analyst extracting structured data from
+    POLITICO newsletter sections. Extract entities, organizations, and any
+    notable actions or relationships. If the section appears to be navigation,
+    sponsor content, or boilerplate, return empty arrays.
+  user_template: |
+    Newsletter: {newsletter_slug}
+    Section header: {section_header}
+
+    SECTION CONTENT:
+    {section_body}
+
+    Extract structured entities from this text.
+  json_schema:
+    type: object
+    additionalProperties: false
+    required: [entities, actions]
+    properties:
+      entities:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required: [name, entity_type]
+          properties:
+            name: {type: string}
+            entity_type:
+              type: string
+              enum: [person, organization, location, event]
+            role: {type: [string, "null"]}
+            organization: {type: [string, "null"]}
+      actions:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required: [actor, action, summary]
+          properties:
+            actor: {type: string}
+            action: {type: string}
+            target: {type: [string, "null"]}
+            summary: {type: string}
+
+# --- Personnel change: TRANSITIONS, MEDIA MOVES, etc. ---
+personnel_change:
+  system: |
+    You are a political-personnel analyst. The text you receive is a list of
+    JOB CHANGES — people moving between roles, organizations, or political
+    posts. Extract every change.
+
+    For each change, identify the person, their PRIOR role and organization,
+    and their NEW role and organization. If only one role is given, fill the
+    other with null. Be exhaustive — these sections often pack 10-20 changes
+    into a few paragraphs.
+  user_template: |
+    Newsletter: {newsletter_slug}, received {received_date}
+    Section: {section_header}
+
+    SECTION CONTENT:
+    {section_body}
+
+    Extract every personnel change in this section.
+  json_schema:
+    type: object
+    additionalProperties: false
+    required: [personnel_changes]
+    properties:
+      personnel_changes:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required: [person_name]
+          properties:
+            person_name: {type: string}
+            prior_role: {type: [string, "null"]}
+            prior_organization: {type: [string, "null"]}
+            new_role: {type: [string, "null"]}
+            new_organization: {type: [string, "null"]}
+            effective_date: {type: [string, "null"]}
+            notes: {type: [string, "null"]}
+
+# --- Social graph: SPOTTED, HAPPY BIRTHDAY ---
+social_graph:
+  system: |
+    You receive a section listing PEOPLE in a social/relational context — guest
+    lists at events, birthday rosters. Extract every named person and the
+    context tying them to the section (the event, the celebration). Names are
+    typically comma-separated; capture each one even when written informally
+    (initials, nicknames are still names).
+  user_template: |
+    Newsletter: {newsletter_slug}
+    Section: {section_header}
+
+    SECTION CONTENT:
+    {section_body}
+
+    Extract every person named in this section, with the event/context they're
+    associated with.
+  json_schema:
+    type: object
+    additionalProperties: false
+    required: [people, context]
+    properties:
+      context:
+        type: object
+        additionalProperties: false
+        required: [type]
+        properties:
+          type:
+            type: string
+            enum: [event_attendance, birthday, transition_callout, other]
+          event_name: {type: [string, "null"]}
+          host_or_organizer: {type: [string, "null"]}
+          location: {type: [string, "null"]}
+          date: {type: [string, "null"]}
+      people:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required: [name]
+          properties:
+            name: {type: string}
+            affiliation: {type: [string, "null"]}
+
+# --- Lead story: free-form political prose ---
+lead_story:
+  system: |
+    You are a political-intelligence analyst. The text you receive is the LEAD
+    STORY of a POLITICO newsletter — narrative prose covering the top political
+    development. Extract the key entities (people, organizations, locations)
+    and the salient actions/relationships described.
+
+    Focus on:
+      - Who did what to whom (action triples)
+      - Stated policy positions
+      - Quoted statements (with the speaker)
+      - Named institutional actors (agencies, parties, committees)
+  user_template: |
+    Newsletter: {newsletter_slug}, received {received_date}
+    Section: {section_header}
+
+    SECTION CONTENT:
+    {section_body}
+
+    Extract entities and actions from this lead story.
+  json_schema:
+    type: object
+    additionalProperties: false
+    required: [entities, actions, quotes]
+    properties:
+      entities:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required: [name, entity_type]
+          properties:
+            name: {type: string}
+            entity_type:
+              type: string
+              enum: [person, organization, location, event, policy_topic]
+            role: {type: [string, "null"]}
+            party: {type: [string, "null"]}
+            state_or_jurisdiction: {type: [string, "null"]}
+      actions:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required: [actor, action, summary]
+          properties:
+            actor: {type: string}
+            action: {type: string}
+            target: {type: [string, "null"]}
+            summary: {type: string}
+      quotes:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required: [speaker, quote]
+          properties:
+            speaker: {type: string}
+            quote: {type: string}
+            context: {type: [string, "null"]}
+
+# --- Campaign news: endorsements, primaries, polls ---
+campaign_news:
+  system: |
+    You are a campaign analyst. The text you receive covers ELECTORAL POLITICS:
+    candidates, races, endorsements, fundraising, polling. Extract every
+    candidate-race pair, endorsement, and fundraising figure mentioned.
+  user_template: |
+    Newsletter: {newsletter_slug}, received {received_date}
+    Section: {section_header}
+
+    SECTION CONTENT:
+    {section_body}
+
+    Extract campaign entities and events from this section.
+  json_schema:
+    type: object
+    additionalProperties: false
+    required: [candidates, endorsements, fundraising]
+    properties:
+      candidates:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required: [name]
+          properties:
+            name: {type: string}
+            office_sought: {type: [string, "null"]}
+            district_or_state: {type: [string, "null"]}
+            party: {type: [string, "null"]}
+      endorsements:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required: [endorser, endorsee]
+          properties:
+            endorser: {type: string}
+            endorsee: {type: string}
+            race: {type: [string, "null"]}
+      fundraising:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required: [entity]
+          properties:
+            entity: {type: string}
+            amount_usd: {type: [number, "null"]}
+            period: {type: [string, "null"]}
+
+# --- News brief / state news / financial: shape similar to unclassified ---
+news_brief:
+  inherit: unclassified
+state_news:
+  inherit: unclassified
+financial:
+  inherit: unclassified
