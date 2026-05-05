@@ -7,11 +7,11 @@ Modes:
   extract     Run Stage 2 entity extraction on pending messages via OpenRouter.
 
 Examples:
-  python -m politico_playbook.src.ingestion.runner backfill
-  python -m politico_playbook.src.ingestion.runner incremental
-  python -m politico_playbook.src.ingestion.runner backfill --newsletter politicoplaybook --limit 50
-  python -m politico_playbook.src.ingestion.runner inventory
-  python -m politico_playbook.src.ingestion.runner extract --limit 10
+  python -m politico_playbook.ingestion.runner backfill
+  python -m politico_playbook.ingestion.runner incremental
+  python -m politico_playbook.ingestion.runner backfill --newsletter politicoplaybook --limit 50
+  python -m politico_playbook.ingestion.runner inventory
+  python -m politico_playbook.ingestion.runner extract --limit 10
 """
 
 from __future__ import annotations
@@ -26,17 +26,17 @@ from typing import Optional
 
 from dotenv import load_dotenv
 
-from politico_playbook.src.ingestion.gmail_client import GmailClient, GmailMessage
-from politico_playbook.src.ingestion.newsletter_registry import NewsletterRegistry
-from politico_playbook.src.ingestion.raw_store import RawEmail, RawEmailStore
+from politico_playbook.ingestion.gmail_client import GmailClient, GmailMessage
+from politico_playbook.ingestion.newsletter_registry import NewsletterRegistry
+from politico_playbook.ingestion.raw_store import RawEmail, RawEmailStore
 
 
 logger = logging.getLogger("ingestion.runner")
 
 
 def _project_root() -> Path:
-    # politico_playbook/src/ingestion/runner.py -> project root is 3 parents up
-    return Path(__file__).resolve().parents[3]
+    # politico_playbook/ingestion/runner.py -> project root is 2 parents up
+    return Path(__file__).resolve().parents[2]
 
 
 def _setup_logging(level: str = "INFO") -> None:
@@ -162,9 +162,9 @@ def _run_extract(args, project_root: Path, db_path: Path, registry: NewsletterRe
     """Run Stage 2 extraction. Imported lazily so ingestion-only runs don't
     need OpenRouter credentials.
     """
-    from politico_playbook.src.ingestion.parser_base import SectionTaxonomy
-    from politico_playbook.src.llm.openrouter_client import OpenRouterClient
-    from politico_playbook.src.processing.section_extractor import (
+    from politico_playbook.ingestion.parser_base import SectionTaxonomy
+    from politico_playbook.llm.openrouter_client import OpenRouterClient
+    from politico_playbook.processing.section_extractor import (
         PromptRegistry,
         SectionExtractor,
     )

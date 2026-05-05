@@ -29,13 +29,13 @@ from typing import Iterator, Optional
 
 import yaml
 
-from politico_playbook.src.ingestion.newsletter_registry import NewsletterRegistry
-from politico_playbook.src.ingestion.parser_base import (
+from politico_playbook.ingestion.newsletter_registry import NewsletterRegistry
+from politico_playbook.ingestion.parser_base import (
     SectionTaxonomy,
     get_parser,
 )
-from politico_playbook.src.ingestion.raw_store import RawEmail, RawEmailStore
-from politico_playbook.src.llm.openrouter_client import LLMResponse, OpenRouterClient
+from politico_playbook.ingestion.raw_store import RawEmail, RawEmailStore
+from politico_playbook.llm.openrouter_client import LLMResponse, OpenRouterClient
 
 
 logger = logging.getLogger("processing.section_extractor")

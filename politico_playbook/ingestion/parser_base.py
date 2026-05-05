@@ -117,9 +117,9 @@ class SectionTaxonomy:
 
 
 def _default_taxonomy_path() -> Path:
-    # politico_playbook/src/ingestion/parser_base.py
-    # ->                    ../../config/section_taxonomy.yaml
-    return Path(__file__).resolve().parents[2] / "config" / "section_taxonomy.yaml"
+    # politico_playbook/ingestion/parser_base.py
+    # ->                config/section_taxonomy.yaml
+    return Path(__file__).resolve().parents[1] / "config" / "section_taxonomy.yaml"
 
 
 class DefaultParser:
