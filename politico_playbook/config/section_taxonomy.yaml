@@ -1,0 +1,219 @@
+# Section Taxonomy
+#
+# Maps section headers (as they appear in newsletter bodies) to semantic types
+# that drive Stage 2 entity extraction. Different newsletters use different
+# labels for the same concept (e.g., flagship Playbook 'TRANSITIONS' vs. Pulse
+# 'Names in the News'); this file is where those equivalences live.
+#
+# Lookup precedence (most-specific to least):
+#   1. by_newsletter[slug][header]   — per-newsletter override
+#   2. shared[header]                 — appears in multiple newsletters
+#   3. skip_headers                   — known header but low extraction value
+#   4. (unmatched)                    — passed through as 'unclassified'
+#
+# Header matching is case-insensitive (stripped of leading/trailing whitespace
+# and trailing colons). So 'TRANSITIONS', 'Transitions', and 'Transitions:'
+# all match the same entry.
+#
+# This file is data, not code — edit freely without touching Python.
+
+# ---------------------------------------------------------------------------
+# Semantic types — defines what each section_type means and how Stage 2
+# should approach extraction for it.
+# ---------------------------------------------------------------------------
+types:
+  personnel_change:
+    description: >
+      Personnel/role changes — the highest-value sections for the political
+      relationships graph. New jobs, departures, promotions.
+    priority: high
+    extraction_focus:
+      - person_name
+      - prior_role
+      - new_role
+      - organization
+      - effective_date
+
+  social_graph:
+    description: >
+      Social/relational mentions — guest lists at events, birthday lists.
+      Pure name lists with light context. Useful for inferring who-knows-who.
+    priority: high
+    extraction_focus:
+      - person_name
+      - event_or_context
+      - associated_organizations
+
+  lead_story:
+    description: >
+      Primary news of the day. Free-form prose covering the top political
+      story. Multi-entity, narrative.
+    priority: medium
+    extraction_focus:
+      - person_name
+      - organization
+      - policy_action
+      - location
+      - event
+
+  news_brief:
+    description: >
+      Secondary news items — numbered lists, short callouts. One entity-action
+      pair per item is typical.
+    priority: medium
+    extraction_focus:
+      - person_name
+      - policy_action
+      - organization
+
+  state_news:
+    description: >
+      State-level political news. Same shape as news_brief but with stronger
+      state/locality context.
+    priority: medium
+    extraction_focus:
+      - person_name
+      - state_or_locality
+      - policy_action
+      - organization
+
+  campaign_news:
+    description: >
+      Campaign endorsements, primaries, fundraising, polling. Strong
+      candidate/race/donor focus.
+    priority: high
+    extraction_focus:
+      - candidate_name
+      - office_sought
+      - race_or_district
+      - endorser
+      - fundraising_amount
+
+  financial:
+    description: >
+      Lobbying, donor money, settlements, financial disclosures.
+    priority: medium
+    extraction_focus:
+      - person_or_organization
+      - amount
+      - recipient
+      - financial_action
+
+  links_only:
+    description: >
+      Link roundups ("What We're Reading", "Around POLITICO"). Skip Stage 2
+      entirely — extraction value is near zero.
+    priority: low
+    skip_extraction: true
+
+  ignore:
+    description: >
+      Trivia, navigation, footers, sponsor messages — explicitly not for
+      extraction.
+    priority: none
+    skip_extraction: true
+
+# ---------------------------------------------------------------------------
+# Shared headers — appear in MULTIPLE newsletters with the same meaning.
+# Per-newsletter overrides (below) win over these.
+# ---------------------------------------------------------------------------
+shared:
+  # Personnel changes — the entity goldmines
+  TRANSITIONS: personnel_change
+  MEDIA MOVES: personnel_change
+  WHITE HOUSE DEPARTURE LOUNGE: personnel_change
+  OPEN FOR OVERSIGHT: personnel_change
+  Names in the News: personnel_change
+
+  # Social graph — name lists
+  SPOTTED: social_graph
+  HAPPY BIRTHDAY: social_graph
+  TALK OF THE TOWN: social_graph
+  SOCIAL DATA: social_graph
+  Social Data: social_graph
+
+  # Lead stories — main news of the day
+  DRIVING THE DAY: lead_story
+  Driving the Day: lead_story
+  Driving The Day: lead_story
+  Top line: lead_story
+  Beat Memo: lead_story
+
+  # News briefs — secondary news
+  5 THINGS YOU NEED TO KNOW: news_brief
+  THE FRONT PAGE: news_brief
+  THE DOWNLOAD: news_brief
+  FOR YOUR RADAR: news_brief
+  Below the Fold: news_brief
+  THE NEWSSTAND: news_brief
+  IN OTHER NEWS: news_brief
+  Odds and Ends: news_brief
+
+  # Financial
+  FOLLOW THE MONEY: financial
+  THE CASH DASH: financial
+
+  # Links / cross-promotion — skip extraction
+  WHAT WE'RE READING: links_only
+  What We're Reading: links_only
+  Around POLITICO: links_only
+  POLITICO Pro: links_only
+  POLITICO IS AT THE 2026 MILKEN GLOBAL CONFERENCE: links_only
+
+# ---------------------------------------------------------------------------
+# Per-newsletter overrides — sections that are specific to one newsletter
+# OR have a different meaning in that newsletter. Keys are the registry slug.
+# ---------------------------------------------------------------------------
+by_newsletter:
+  westwingplaybook:
+    Agenda Setting: news_brief
+    The Oval: news_brief
+    In the Courts: news_brief
+    POTUS PUZZLER: ignore
+    POTUS PUZZLER ANSWER: ignore
+    MESSAGE US: ignore
+
+  newyorkplaybook:
+    MIDTERMOIL: campaign_news
+    PLANET ALBANY: state_news
+    "MAMDANI'S NEW YORK": state_news
+
+  newyorkplaybookpm:
+    MIDTERMOIL: campaign_news
+    PLANET ALBANY: state_news
+
+  pulse:
+    IN THE STATES: state_news
+    Global Health: news_brief
+    Providers: news_brief
+
+  prescriptionpulse:
+    IN THE STATES: state_news
+
+  weeklyscore:
+    REDISTRICTING ROUNDUP: campaign_news
+    Redistricting Roundup: campaign_news
+    Presidential Big Board: campaign_news
+    Poll Position: campaign_news
+    CODA: ignore
+
+  newsletter_politicopro:
+    "Beat Memo": lead_story
+    "ON THE AGENDA": ignore
+    "What you may have missed": news_brief
+
+# ---------------------------------------------------------------------------
+# Headers to recognize as section breaks but skip Stage 2 extraction.
+# Used for navigational / boilerplate that consistently appears as a header.
+# ---------------------------------------------------------------------------
+skip_headers:
+  - WHAT YOU MISSED
+  - Subscribe to the POLITICO Playbook family
+  - View all our political and policy newsletters
+  - Follow us on X
+  - Follow us
+  - "Did someone forward this email to you? Sign up here."
+  - "Did someone forward this email to you? Subscribe here!"
+  - NOW WE KNOW
+  - "TODAY'S TIP"
+  - STUDY THIS

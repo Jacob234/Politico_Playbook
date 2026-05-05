@@ -4,27 +4,31 @@ This module sits between raw ingestion (Gmail -> SQLite) and Stage 2 entity
 extraction (LLM). It does NOT extract entities; it cleans and structures the
 plaintext so Stage 2 receives high-signal input.
 
+The section taxonomy lives in YAML at config/section_taxonomy.yaml — see that
+file for the lookup precedence and schema. This module just enforces it.
+
 Why preprocess at all:
   1. Sponsor blocks ('BEGIN-REGION ... END-REGION') pollute entity extraction.
-  2. Named sections ('TRANSITIONS', 'MEDIA MOVES', etc.) carry strong type
-     priors — e.g., names appearing in TRANSITIONS are personnel changes,
-     names in HAPPY BIRTHDAY are social-graph hits.
-  3. Footers (subscription links, family newsletter list) add noise.
-
-This is a flexible parser: the default handles ~95% of Politico newsletters.
-Per-newsletter overrides go in the registry's `parser:` field and dispatch
-through `get_parser()` below.
+  2. Named sections carry strong type priors — e.g., names appearing in
+     'TRANSITIONS' are personnel changes, names in 'HAPPY BIRTHDAY' are
+     social-graph hits.
+  3. Different newsletters use different labels for the same concept; the YAML
+     resolves them to a shared semantic type.
 """
 
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Optional
+
+import yaml
 
 
 # ---------------------------------------------------------------------------
-# Sponsor block stripping — BEGIN-REGION / END-REGION pattern observed in samples.
+# Sponsor block stripping — BEGIN-REGION / END-REGION pattern observed
+# in Politico newsletter samples.
 # ---------------------------------------------------------------------------
 _SPONSOR_BLOCK_RE = re.compile(
     r"BEGIN-REGION\s+\S+.*?END-REGION",
@@ -32,42 +36,90 @@ _SPONSOR_BLOCK_RE = re.compile(
 )
 
 
-# ---------------------------------------------------------------------------
-# SECTION TAXONOMY — TO BE DEFINED BY DOMAIN OWNER.
-# ---------------------------------------------------------------------------
-# Each entry maps a section header (as it appears in the newsletter, case-
-# insensitive) to a section_type tag. Stage 2 receives sections individually
-# along with their type; a section-type tag tells the LLM what kind of entities
-# to expect.
-#
-# Empty by default — fill in based on the categories you actually want to
-# extract differently. See parser_base.py docstring for examples observed
-# in the May 2026 sample.
-SECTION_TAXONOMY: dict[str, str] = {
-    # "TRANSITIONS":               "personnel_change",
-    # "MEDIA MOVES":               "personnel_change",
-    # "WHITE HOUSE DEPARTURE LOUNGE": "personnel_change",
-    # "SPOTTED":                   "social_graph",
-    # "HAPPY BIRTHDAY":            "social_graph",
-    # "DRIVING THE DAY":           "lead_story",
-    # "5 THINGS YOU NEED TO KNOW": "news_brief",
-    # "TALK OF THE TOWN":          "social_brief",
-    # "THE FRONT PAGE":            "news_brief",
-}
-
-
 @dataclass
 class Section:
-    header: str           # Original header text as found in the body.
-    section_type: str     # Tag from SECTION_TAXONOMY, or 'unclassified'.
-    body: str             # Section content with header stripped.
+    header: str             # Original header text as found in the body.
+    section_type: str       # Type from taxonomy, or 'unclassified'.
+    body: str               # Section content with header stripped.
+    skip_extraction: bool = False  # True for links_only / ignore / skip_headers.
 
 
 @dataclass
 class ParsedNewsletter:
     plaintext_clean: str               # Body with sponsor blocks removed.
     sections: list[Section] = field(default_factory=list)
-    unmatched_body: str = ""           # Text that did not fall under any detected section.
+    unmatched_body: str = ""           # Text before any detected section.
+
+
+def _normalize(header: str) -> str:
+    """Match key for headers: strip whitespace, drop trailing colons, lowercase."""
+    return header.strip().rstrip(":").lower()
+
+
+class SectionTaxonomy:
+    """Loaded section_taxonomy.yaml with fast per-newsletter lookup."""
+
+    def __init__(self, raw: dict):
+        self._types: dict[str, dict] = raw.get("types") or {}
+
+        # Pre-normalize keys for case/colon-insensitive matching.
+        self._shared = {
+            _normalize(k): v for k, v in (raw.get("shared") or {}).items()
+        }
+        self._by_newsletter: dict[str, dict[str, str]] = {}
+        for slug, mapping in (raw.get("by_newsletter") or {}).items():
+            self._by_newsletter[slug] = {
+                _normalize(k): v for k, v in (mapping or {}).items()
+            }
+        self._skip_headers = {
+            _normalize(h) for h in (raw.get("skip_headers") or [])
+        }
+
+    @classmethod
+    def load(cls, path: str | Path) -> "SectionTaxonomy":
+        with open(path, "r", encoding="utf-8") as f:
+            return cls(yaml.safe_load(f) or {})
+
+    def lookup(self, header: str, newsletter_slug: Optional[str] = None) -> tuple[str, bool]:
+        """Resolve a header to (section_type, skip_extraction) given the newsletter context.
+
+        Returns ('unclassified', False) if the header is not in the taxonomy.
+        """
+        norm = _normalize(header)
+
+        # 1. Per-newsletter override wins.
+        if newsletter_slug and newsletter_slug in self._by_newsletter:
+            t = self._by_newsletter[newsletter_slug].get(norm)
+            if t:
+                return t, self._is_skip_type(t)
+
+        # 2. Cross-newsletter shared mapping.
+        t = self._shared.get(norm)
+        if t:
+            return t, self._is_skip_type(t)
+
+        # 3. Skip-but-recognize.
+        if norm in self._skip_headers:
+            return "ignore", True
+
+        return "unclassified", False
+
+    def is_known_header(self, header: str, newsletter_slug: Optional[str] = None) -> bool:
+        """Whether `header` is in the taxonomy at all (for any of the three layers)."""
+        norm = _normalize(header)
+        if newsletter_slug and norm in self._by_newsletter.get(newsletter_slug, {}):
+            return True
+        return norm in self._shared or norm in self._skip_headers
+
+    def _is_skip_type(self, section_type: str) -> bool:
+        meta = self._types.get(section_type) or {}
+        return bool(meta.get("skip_extraction"))
+
+
+def _default_taxonomy_path() -> Path:
+    # politico_playbook/src/ingestion/parser_base.py
+    # ->                    ../../config/section_taxonomy.yaml
+    return Path(__file__).resolve().parents[2] / "config" / "section_taxonomy.yaml"
 
 
 class DefaultParser:
@@ -76,6 +128,14 @@ class DefaultParser:
     Subclass and override `_split_into_sections` for newsletters with
     non-standard structure (e.g., the politicopro.com multi-vertical sender).
     """
+
+    def __init__(
+        self,
+        taxonomy: Optional[SectionTaxonomy] = None,
+        newsletter_slug: Optional[str] = None,
+    ):
+        self.taxonomy = taxonomy or SectionTaxonomy.load(_default_taxonomy_path())
+        self.newsletter_slug = newsletter_slug
 
     def parse(self, plaintext: str) -> ParsedNewsletter:
         clean = self._strip_sponsor_blocks(plaintext)
@@ -90,50 +150,43 @@ class DefaultParser:
     def _strip_sponsor_blocks(text: str) -> str:
         return _SPONSOR_BLOCK_RE.sub("", text)
 
-    @staticmethod
-    def _split_into_sections(text: str) -> tuple[list[Section], str]:
-        """Split text into (sections, unmatched_body) using SECTION_TAXONOMY.
+    def _split_into_sections(self, text: str) -> tuple[list[Section], str]:
+        """Walk lines; start a new section when a line matches a known header.
 
-        Section headers in Politico newsletters appear on their own line,
-        in ALL CAPS. We walk lines and start a new section when we hit a
-        line that matches a known header.
-
-        If SECTION_TAXONOMY is empty, returns ([], full_text) — the whole body
-        becomes 'unmatched', which Stage 2 receives as a single blob.
+        A "header" is a stripped non-empty line that exactly matches an entry
+        in the taxonomy (case-insensitive, trailing-colon-tolerant).
         """
-        if not SECTION_TAXONOMY:
-            return [], text
-
-        # Normalize for matching but preserve original header casing.
-        lookup = {key.upper(): tag for key, tag in SECTION_TAXONOMY.items()}
-
         sections: list[Section] = []
         current_header: Optional[str] = None
         current_type: str = "unclassified"
+        current_skip: bool = False
         current_buf: list[str] = []
         prelude: list[str] = []
 
         def flush():
-            nonlocal current_header, current_type, current_buf
+            nonlocal current_header, current_type, current_skip, current_buf
             if current_header is not None:
                 sections.append(
                     Section(
                         header=current_header,
                         section_type=current_type,
                         body="\n".join(current_buf).strip(),
+                        skip_extraction=current_skip,
                     )
                 )
             current_header = None
             current_type = "unclassified"
+            current_skip = False
             current_buf = []
 
         for line in text.splitlines():
             stripped = line.strip()
-            tag = lookup.get(stripped.upper())
-            if tag is not None:
+            if stripped and self.taxonomy.is_known_header(stripped, self.newsletter_slug):
                 flush()
                 current_header = stripped
-                current_type = tag
+                current_type, current_skip = self.taxonomy.lookup(
+                    stripped, self.newsletter_slug
+                )
             elif current_header is None:
                 prelude.append(line)
             else:
@@ -160,6 +213,11 @@ _PARSER_REGISTRY: dict[str, type[DefaultParser]] = {
 }
 
 
-def get_parser(parser_name: str) -> DefaultParser:
+def get_parser(
+    parser_name: str,
+    *,
+    newsletter_slug: Optional[str] = None,
+    taxonomy: Optional[SectionTaxonomy] = None,
+) -> DefaultParser:
     cls = _PARSER_REGISTRY.get(parser_name, DefaultParser)
-    return cls()
+    return cls(taxonomy=taxonomy, newsletter_slug=newsletter_slug)
