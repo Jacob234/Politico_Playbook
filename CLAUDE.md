@@ -2,95 +2,154 @@
 
 ## Project Overview
 
-This is a proof-of-concept NLP data extraction tool for analyzing Politico Playbook newsletters to extract structured political intelligence data.
+NLP data extraction tool for analyzing the **POLITICO newsletter family** —
+~27 newsletters across the Politico landscape (flagship Playbook, state
+Playbooks, vertical dailies, weeklies, Politico Pro) — to extract structured
+political intelligence data.
 
 ### Project Goals
-1. **Automated Newsletter Collection**: Extract Politico Playbook emails from Gmail
-2. **Text Processing**: Parse HTML newsletters into structured data
-3. **Entity & Relationship Extraction**: Use NLP to identify:
-   - Political figures and organizations
-   - Personnel changes (appointments, departures)
-   - Social/political relationships
-   - Media appearances and events
-4. **Data Storage**: Store extracted data in structured format (JSON/CSV/database)
-5. **Visualization**: Eventually create network graphs showing political relationships
+1. **Multi-Newsletter Ingestion**: Pull all subscribed POLITICO newsletters
+   from a dedicated Gmail inbox via the Gmail API.
+2. **Section-Aware Parsing**: Strip sponsor blocks, identify named sections
+   (`TRANSITIONS`, `MEDIA MOVES`, `SPOTTED`, `HAPPY BIRTHDAY`, etc.) and
+   resolve cross-newsletter label variants to a shared semantic taxonomy.
+3. **Entity & Relationship Extraction**: Use a model-agnostic LLM layer
+   (OpenRouter) with section-typed prompts to extract:
+   - Personnel changes (job moves — entity goldmine)
+   - Social graph (event attendance, birthday rosters)
+   - Lead-story narrative entities
+   - Campaign-news data (candidates, endorsements, fundraising)
+4. **Idempotent Storage**: SQLite-backed raw email store and structured
+   extraction store, both keyed for safe re-runs.
+5. **Visualization**: Future — network graphs showing political relationships.
 
-### Current Implementation Status - POST REORGANIZATION ✅
-- ✅ **REORGANIZED**: Clean module structure with `politico_playbook/` as main package
-- ✅ **SECURITY**: Environment variables implemented, no hardcoded credentials
-- ✅ Email extraction script (`politico_playbook/src/extraction/email_client.py`)
-- ✅ Basic file structure and organization
-- ✅ Sample newsletter data collected (11 newsletters in `data/raw/` and `data/processed/`)
-- ✅ JSON schema defined in `politico_playbook/src/models/schemas.py`
-- ❌ NLP entity extraction not yet implemented
-- ❌ Relationship extraction not yet implemented
-- ❌ User interface not yet built
+### Current Implementation Status
 
-## NEW PROJECT STRUCTURE (COMPLETED)
+**v0.2 Multi-newsletter pipeline (current)**
+- ✅ Gmail API + OAuth ingestion (`src/ingestion/gmail_client.py`)
+- ✅ SQLite raw email store, idempotent on `gmail_message_id` (`src/ingestion/raw_store.py`)
+- ✅ Newsletter registry (27 newsletters in `config/newsletters.yaml`)
+- ✅ Section taxonomy with per-newsletter overrides (`config/section_taxonomy.yaml`)
+- ✅ Section-aware parser (`src/ingestion/parser_base.py`)
+- ✅ OpenRouter client, model-swappable via `MODEL_ID` env var (`src/llm/openrouter_client.py`)
+- ✅ Section-typed extraction prompts (`config/extraction_prompts.yaml`)
+- ✅ Stage 2 extractor with structured JSON output (`src/processing/section_extractor.py`)
+- ✅ Single CLI runner: `backfill | incremental | inventory | extract`
+- ⏳ Stage 3 (entity normalization/dedup) and Stage 4 (graph/temporal) — not yet
+  ported to the new SQLite-backed pipeline; old file-based versions remain in
+  `src/processing/database_normalizer.py` and `temporal_analyzer.py`.
 
-### Final Structure
+**v0.1 POC (deprecated, preserved at git tag `v0.1-poc-single-source`)**
+- IMAP App Password ingestion, single newsletter (Playbook), 4-day window
+- Direct Anthropic SDK calls, two-tier Haiku/Sonnet routing
+- File-based raw HTML / structured JSON
+- Old code remains at `src/extraction/` and `src/processing/claude_nlp_processor.py`
+  (marked deprecated). Do not extend; new work goes in the v0.2 modules.
+
+## Project Structure (v0.2)
+
 ```
 politico_playbook/
 ├── config/
-│   ├── __init__.py
-│   └── lexicon.json        # Moved from root
+│   ├── newsletters.yaml          # 27 newsletters keyed by sender slug
+│   ├── section_taxonomy.yaml     # Header → semantic-type mappings
+│   ├── extraction_prompts.yaml   # Stage 2 prompts + JSON schemas
+│   └── lexicon.json              # Legacy (v0.1)
 ├── data/
-│   ├── raw/               # HTML newsletters (migrated from src/data/newsletters/)
-│   ├── processed/         # Extracted text (migrated from src/data/text/)
-│   ├── structured/        # JSON outputs
-│   └── playbook_metadata.csv
+│   ├── raw_emails.db             # SQLite raw store (gitignored)
+│   ├── raw/                      # Legacy v0.1 HTML files (gitignored)
+│   └── ...                       # Legacy v0.1 outputs
 ├── src/
-│   ├── __init__.py
-│   ├── extraction/
-│   │   ├── __init__.py
-│   │   ├── email_client.py    # Gmail connection (SECURED with env vars)
-│   │   └── html_parser.py     # HTML to text conversion
+│   ├── ingestion/                # NEW (v0.2) — Gmail → SQLite
+│   │   ├── gmail_client.py       # OAuth API client
+│   │   ├── newsletter_registry.py
+│   │   ├── parser_base.py        # Section-aware preprocessing
+│   │   ├── raw_store.py          # SQLite raw_emails table
+│   │   └── runner.py             # CLI: backfill / incremental / inventory / extract
+│   ├── llm/                      # NEW (v0.2) — Model-agnostic
+│   │   └── openrouter_client.py  # OpenAI SDK → OpenRouter base URL
 │   ├── processing/
-│   │   ├── __init__.py
-│   │   └── [future NLP modules]
-│   ├── models/
-│   │   ├── __init__.py
-│   │   └── schemas.py         # JSON schemas
+│   │   ├── section_extractor.py  # NEW (v0.2) — Stage 2 via OpenRouter
+│   │   ├── claude_nlp_processor.py   # DEPRECATED (v0.1)
+│   │   ├── database_normalizer.py    # Stage 3 (file-based, not yet ported)
+│   │   ├── temporal_analyzer.py      # Stage 4 (file-based, not yet ported)
+│   │   ├── html_to_json.py
+│   │   └── nlp_processor.py
+│   ├── extraction/               # DEPRECATED (v0.1) — IMAP path
+│   │   ├── email_client.py
+│   │   └── html_parser.py
+│   ├── models/schemas.py         # JSON schemas (legacy v0.1)
+│   ├── pipeline_orchestrator.py  # Legacy v0.1 orchestrator
 │   └── utils/
-│       ├── __init__.py
-│       └── [future utilities]
-├── tests/
-│   └── __init__.py
-├── main.py                # Main entry point
-└── __init__.py           # Package root
+└── tests/
 ```
 
 ### Root Level Files
-```
-├── .env                  # ✅ Created with Gmail credentials
-├── .env.example         # ✅ Updated with Gmail template
-├── .gitignore           # ✅ Already properly configured
-├── CLAUDE.md           # This file
-├── README.md           
-├── requirements.txt    # ✅ Updated with NLP dependencies
-├── playbook-poc-plan.md
-└── to_do.md
-```
+- `.env` / `.env.example` — OAuth and OpenRouter credentials
+- `.gitignore` — Excludes `*.db`, OAuth secrets, scratch files
+- `requirements.txt` — Updated with `google-api-python-client`, `openai`, `pyyaml`
+- `docs/superpowers/specs/2026-05-05-multi-newsletter-ingestion-design.md` —
+  Active design doc for the v0.2 architecture
 
 ## Key Development Commands
 
+### Environment setup
 ```bash
-# Environment setup
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
+```
 
-# Run email extraction
-cd politico_playbook
-python src/extraction/email_client.py
+### One-time Gmail OAuth setup
+1. Go to https://console.cloud.google.com/apis/credentials
+2. Create an OAuth 2.0 Client ID (type: Desktop app)
+3. Download the client JSON to `~/.config/politico-pipeline/oauth_client.json`
+   (path configurable via `GOOGLE_OAUTH_CLIENT_SECRETS` env var)
+4. Enable the Gmail API for your project
+5. First `backfill` run will open a browser tab to complete consent; the
+   resulting token is cached at `GOOGLE_OAUTH_TOKEN_PATH`.
 
-# Code quality
-black politico_playbook/     # Format code
-flake8 politico_playbook/    # Lint code
-pytest tests/               # Run tests
+### One-time OpenRouter setup
+1. Sign up at https://openrouter.ai/ and grab a key from `/keys`
+2. Set `OPENROUTER_API_KEY` and `MODEL_ID` in `.env` (see `.env.example`)
 
-# Import testing
-python -c "from politico_playbook.src.extraction.email_client import main; print('Import successful')"
+### Pipeline commands
+All operations go through one CLI runner:
+
+```bash
+# Pull all matching messages from Gmail (idempotent — safe to re-run)
+python -m politico_playbook.src.ingestion.runner backfill
+
+# Pull only messages newer than the last stored message
+python -m politico_playbook.src.ingestion.runner incremental
+
+# Restrict to a single newsletter
+python -m politico_playbook.src.ingestion.runner backfill --newsletter politicoplaybook
+
+# Cap fetched messages (testing)
+python -m politico_playbook.src.ingestion.runner backfill --limit 50
+
+# Show what's currently in the local DB
+python -m politico_playbook.src.ingestion.runner inventory
+
+# Run Stage 2 entity extraction on all 'pending' messages
+python -m politico_playbook.src.ingestion.runner extract
+
+# Process only N pending (testing — keeps spend low)
+python -m politico_playbook.src.ingestion.runner extract --limit 5
+```
+
+### Querying the raw store directly
+```bash
+sqlite3 data/raw_emails.db "SELECT newsletter_slug, COUNT(*) FROM raw_emails GROUP BY newsletter_slug ORDER BY 2 DESC"
+sqlite3 data/raw_emails.db "SELECT section_type, COUNT(*) FROM extractions GROUP BY section_type"
+```
+
+### Code quality
+```bash
+black politico_playbook/
+flake8 politico_playbook/
+pytest tests/
 ```
 
 ## Subagent Integration Points
@@ -145,59 +204,65 @@ python -c "from politico_playbook.src.extraction.email_client import main; print
 
 ## Priority Tasks (Next Steps)
 
-1. **HIGH**: ✅ Implement NLP entity extraction in `politico_playbook/src/processing/`
-2. **HIGH**: ✅ Create relationship extraction patterns  
-3. **HIGH**: **CURRENT** - Implement Claude-based NLP enhancement for 98%+ accuracy
-4. **MEDIUM**: Build SQLite database storage system
-5. **MEDIUM**: Complete text processing pipeline
-6. **LOW**: Build visualization interface
+1. **DONE (v0.2)**: Multi-newsletter Gmail API ingestion, SQLite raw store,
+   section-aware parser, OpenRouter Stage 2 with section-typed prompts.
+2. **NEXT**: Run a real backfill — requires user to set up Google OAuth
+   credentials and `OPENROUTER_API_KEY`. Validate the model
+   `tencent/hy3-preview:free` slug against OpenRouter's catalog (if invalid,
+   swap to `anthropic/claude-haiku-4-5` or `google/gemini-2.5-flash`).
+3. **MEDIUM**: Port Stage 3 (entity normalization/dedup) to consume the
+   `extractions` SQLite table instead of file-based JSON in
+   `data/structured/`.
+4. **MEDIUM**: Port Stage 4 (graph + temporal) similarly.
+5. **MEDIUM**: Add fuzzy section header matching for Politico format drift
+   over the 15-month backfill window.
+6. **LOW**: Visualization layer (network graphs, timeline views).
 
-## Political NLP Enhancement - Phase 1: Claude Integration
+## v0.2 Architecture Notes
 
-### Current Implementation Status
-- ✅ spaCy-based NLP processor (70% accuracy, high false positives)
-- 🔄 **IN PROGRESS**: Claude-3.5-Haiku primary processor
-- ⏸️ Claude-3.5-Sonnet escalation for complex cases
-- ⏸️ Confidence-based routing
-- ⏸️ Political entity validation
-- ⏸️ Bulk processing optimization
+### Model layer — OpenRouter (model-agnostic)
+The pipeline does not depend on any provider's SDK. `MODEL_ID` env var
+selects the model; the OpenAI SDK pointed at `https://openrouter.ai/api/v1`
+handles routing. Anthropic prompt caching is passed through via
+`extra_body` when `MODEL_ID` starts with `anthropic/`.
 
-### Architecture
-Two-tier Claude system for political newsletter analysis:
-- **Primary**: Haiku for standard extraction (~90% of cases) - $0.01/newsletter
-- **Escalation**: Sonnet for complex/uncertain cases (~10% of cases) - $0.03 additional
-- **Target**: 98-99% accuracy at ~$0.015/newsletter average
+Tradeoff: OpenRouter does not proxy Anthropic's Message Batches API (50%
+discount), so cost reduction vs. v0.1 is ~5x (caching only) rather than
+~10x (caching + batches). Optionality of swapping providers is the win.
 
-### Usage
-```bash
-cd politico_playbook
-python src/processing/claude_nlp_processor.py
-# Processes all newsletters in data/structured/
-# Outputs enhanced results to data/structured/claude_enhanced/
-```
+### Section taxonomy
+The same semantic concept appears under different labels across newsletters
+— `TRANSITIONS` in flagship Playbook, `Names in the News` in Pulse,
+`WHITE HOUSE SHAKE-UP` as inline callouts in Weekly Score. The YAML
+taxonomy in `config/section_taxonomy.yaml` resolves these to a small set
+of types (`personnel_change`, `social_graph`, `lead_story`, `campaign_news`,
+`news_brief`, `state_news`, `financial`, `links_only`, `ignore`) that
+Stage 2 prompts specialize on.
 
-### Future Multi-Stage Enhancement Plan
-
-#### Phase 2: Ultra-Low Cost Pre-filtering (Future)
-- **Stage 0**: Groq/Gemini Flash pre-filter ($0.002/newsletter)
-- **Stage 1**: Haiku validation ($0.008/newsletter)  
-- **Stage 2**: Sonnet resolution ($0.003 average)
-- **Target**: 99.9% accuracy at $0.013/newsletter
-
-#### Phase 3: Real-Time Verification (Future)
-- Political database integration
-- Current role verification via Perplexity API
-- Continuous learning pipeline
-
-#### Phase 4: Advanced Analytics (Future)
-- Network analysis and relationship graphs
-- Temporal relationship tracking
-- Political influence mapping
+### Idempotency
+- Ingestion is keyed on `gmail_message_id` (Gmail's stable message ID).
+  Re-running `backfill` is a no-op for already-stored messages.
+- Extraction is keyed on `(gmail_message_id, section_index, model_id)`.
+  Re-running `extract` skips already-processed messages via
+  `processing_status` and re-running for the same model writes idempotently.
+  Switching `MODEL_ID` produces a fresh extraction row, useful for A/B
+  comparison.
 
 ## Outstanding Issues
 
-- **Playbook Type Mapping**: The current email-to-playbook-type mapping in `html_to_json.py` is generally incorrect and needs to be refined. The mapping should be based on actual newsletter content analysis rather than assumptions.
-- **spaCy NLP Quality**: Current entity extraction has ~70% accuracy with many false positives (journalists marked as politicians, malformed entities). Being replaced with Claude-based system.
+- **Stage 3 / 4 not yet wired to v0.2**: `database_normalizer.py` and
+  `temporal_analyzer.py` still consume file-based JSON from
+  `data/structured/`. They need to be ported to read from the
+  `extractions` SQLite table.
+- **`tencent/hy3-preview:free` slug**: Free-tier model with aggressive rate
+  limits (~20-200 req/day). Verify exact slug against
+  https://openrouter.ai/models before a real run; expect to swap to a paid
+  model for production-volume backfill.
+- **Politico Pro multi-vertical sender**: `newsletter@email.politicopro.com`
+  represents many sub-newsletters disambiguated by subject. The
+  `pro_multi_vertical` parser is currently a stub (falls through to
+  default); a subject-pattern dispatcher needs to be added once Pro
+  newsletters are in the DB.
 
 ## Updated Dependencies
 
@@ -257,16 +322,36 @@ flake8==6.1.0
 - Consider rate limiting for email extraction
 - Plan for incremental/resumable processing
 
-## Migration Summary ✅ COMPLETED
+## Migration Summary
 
-**What was migrated**:
+### v0.1 → v0.2 (2026-05-05) — Multi-newsletter ingestion redesign
+
+**What changed**:
+- IMAP App Password → Gmail API + OAuth (`src/ingestion/gmail_client.py`)
+- File-based raw HTML → SQLite `raw_emails.db` keyed on `gmail_message_id`
+- Single newsletter (Playbook) → 27 newsletters across the Politico landscape,
+  driven by `config/newsletters.yaml`
+- Hardcoded date window (Aug 1-4 2025) → configurable via CLI / incremental mode
+- Direct Anthropic SDK → OpenRouter via OpenAI-compatible client
+  (model-agnostic; swap providers via `MODEL_ID` env var)
+- Whole-body LLM extraction → section-aware extraction with section-typed
+  prompts and JSON schemas
+- Multiple scripts → single CLI runner: `python -m politico_playbook.src.ingestion.runner <mode>`
+
+**What was kept**:
+- `src/processing/database_normalizer.py` and `temporal_analyzer.py`
+  (Stages 3-4) — still file-based, to be ported.
+- `src/extraction/` — kept as a v0.1 reference path. Marked deprecated.
+- `src/processing/claude_nlp_processor.py` — kept for v0.1 compatibility.
+
+**Recovery**: `git checkout v0.1-poc-single-source` returns to the original
+single-source POC state.
+
+### Pre-v0.1 → v0.1 (legacy) — Initial reorganization
+
 - `src/data/newsletters/` → `politico_playbook/data/raw/`
-- `src/data/text/` → `politico_playbook/data/processed/`  
-- `src/email_extractor.py` → `politico_playbook/src/extraction/email_client.py` (with env vars)
+- `src/data/text/` → `politico_playbook/data/processed/`
+- `src/email_extractor.py` → `politico_playbook/src/extraction/email_client.py`
 - `src/html_formatter.py` → `politico_playbook/src/extraction/html_parser.py`
 - `src/main.py` → `politico_playbook/main.py`
 - `lexicon.json` → `politico_playbook/config/lexicon.json`
-- Created proper `__init__.py` files throughout package structure
-- Updated `requirements.txt` with NLP dependencies
-
-The project is now properly organized and ready for NLP implementation!
