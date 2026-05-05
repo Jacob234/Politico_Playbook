@@ -1,0 +1,214 @@
+# Newsletter Registry
+#
+# Sender slug (the part before @email.politico.com) is the unique key.
+# Registry-driven: edit this file to add, disable, or re-route newsletters.
+# No code change required.
+#
+# Fields:
+#   display_name: Human-readable name for reports.
+#   parser:      Parser identifier. 'default' = generic Politico parser.
+#                Use 'pro_multi_vertical' for politicopro.com sender (subject-routed).
+#   priority:    1 (top) – 5 (low). Used to throttle Stage 2 spend if budget is tight.
+#   active:      Set false to ignore the newsletter without removing the entry.
+#   notes:       Optional human notes (cadence, gotchas, parser tweaks).
+
+newsletters:
+  # ------------------------------------------------------------
+  # FLAGSHIP PLAYBOOK FAMILY
+  # ------------------------------------------------------------
+  politicoplaybook:
+    display_name: "POLITICO Playbook (AM/PM)"
+    parser: default
+    priority: 1
+    active: true
+    notes: "Same sender for AM and PM; disambiguate by time of day in subject if needed."
+
+  westwingplaybook:
+    display_name: "West Wing Playbook"
+    parser: default
+    priority: 1
+    active: true
+
+  politicoweekend:
+    display_name: "POLITICO Weekend"
+    parser: default
+    priority: 2
+    active: true
+
+  # ------------------------------------------------------------
+  # STATE PLAYBOOKS
+  # ------------------------------------------------------------
+  californiaplaybook:
+    display_name: "California Playbook (AM)"
+    parser: default
+    priority: 2
+    active: true
+
+  californiaplaybookpm:
+    display_name: "California Playbook PM"
+    parser: default
+    priority: 2
+    active: true
+
+  newyorkplaybook:
+    display_name: "New York Playbook (AM)"
+    parser: default
+    priority: 2
+    active: true
+
+  newyorkplaybookpm:
+    display_name: "New York Playbook PM"
+    parser: default
+    priority: 2
+    active: true
+
+  illinoisplaybook:
+    display_name: "Illinois Playbook"
+    parser: default
+    priority: 2
+    active: true
+
+  floridaplaybook:
+    display_name: "Florida Playbook"
+    parser: default
+    priority: 2
+    active: true
+
+  newjerseyplaybook:
+    display_name: "New Jersey Playbook"
+    parser: default
+    priority: 2
+    active: true
+
+  canadaplaybook:
+    display_name: "Canada Playbook"
+    parser: default
+    priority: 3
+    active: true
+
+  # ------------------------------------------------------------
+  # VERTICAL DAILIES
+  # ------------------------------------------------------------
+  insidecongress:
+    display_name: "Inside Congress"
+    parser: default
+    priority: 1
+    active: true
+
+  pulse:
+    display_name: "Pulse (Health)"
+    parser: default
+    priority: 2
+    active: true
+
+  forecast:
+    display_name: "Global Forecast"
+    parser: default
+    priority: 3
+    active: true
+
+  # ------------------------------------------------------------
+  # VERTICAL WEEKLIES (Mondays)
+  # ------------------------------------------------------------
+  weeklytax:
+    display_name: "Weekly Tax"
+    parser: default
+    priority: 3
+    active: true
+
+  weeklycybersecurity:
+    display_name: "Weekly Cybersecurity"
+    parser: default
+    priority: 3
+    active: true
+
+  weeklyagriculture:
+    display_name: "Weekly Agriculture"
+    parser: default
+    priority: 3
+    active: true
+
+  weeklyeducation:
+    display_name: "Weekly Education"
+    parser: default
+    priority: 3
+    active: true
+
+  weeklyshift:
+    display_name: "Weekly Shift (Labor)"
+    parser: default
+    priority: 3
+    active: true
+
+  weeklyscore:
+    display_name: "Weekly Score (Campaigns)"
+    parser: default
+    priority: 2
+    active: true
+
+  weeklytransportation:
+    display_name: "Weekly Transportation"
+    parser: default
+    priority: 3
+    active: true
+
+  weeklytrade:
+    display_name: "Weekly Trade"
+    parser: default
+    priority: 3
+    active: true
+
+  # ------------------------------------------------------------
+  # BI-WEEKLY / SEMI-WEEKLY
+  # ------------------------------------------------------------
+  prescriptionpulse:
+    display_name: "Prescription Pulse (Pharma)"
+    parser: default
+    priority: 3
+    active: true
+    notes: "Tuesday and Friday."
+
+  powerswitch:
+    display_name: "Power Switch (Energy)"
+    parser: default
+    priority: 2
+    active: true
+
+  # ------------------------------------------------------------
+  # KNOWN-SUBSCRIBED, NOT YET SAMPLED — verify on first ingest
+  # ------------------------------------------------------------
+  brusselsplaybook:
+    display_name: "Brussels Playbook"
+    parser: default
+    priority: 3
+    active: true
+    notes: "Listed in Politico's family footer; may be lower volume in this mailbox."
+
+  londonplaybook:
+    display_name: "London Playbook"
+    parser: default
+    priority: 3
+    active: true
+    notes: "Listed in Politico's family footer; may be lower volume in this mailbox."
+
+  # ------------------------------------------------------------
+  # POLITICO PRO (multiple verticals share one sender)
+  # ------------------------------------------------------------
+  newsletter_politicopro:
+    display_name: "POLITICO Pro (multi-vertical)"
+    parser: pro_multi_vertical
+    priority: 2
+    active: true
+    notes: |
+      Sender: newsletter@email.politicopro.com — single sender covers many
+      vertical newsletters (NY Health Care, NY/NJ Energy, etc.).
+      Parser must dispatch on subject patterns to assign sub-newsletter type.
+
+# ------------------------------------------------------------
+# DOMAIN ALIASES — sender-domain to slug-source mapping
+# ------------------------------------------------------------
+# Some newsletters come from email.politicopro.com instead of email.politico.com.
+# This list tells the ingestor which domains to treat as in-scope.
+allowed_domains:
+  - email.politico.com
+  - email.politicopro.com

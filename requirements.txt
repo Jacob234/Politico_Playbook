@@ -1,18 +1,29 @@
 # Core dependencies
-requests==2.31.0
-beautifulsoup4==4.12.2
-python-dotenv==1.0.0
-pandas==2.1.4
-lxml==4.9.3
+requests>=2.31.0
+beautifulsoup4>=4.12.2
+python-dotenv>=1.0.0
+pandas>=2.1.4
+lxml>=4.9.3
+pyyaml>=6.0
 
-# NLP and text processing
+# Gmail API (replaces IMAP)
+google-api-python-client>=2.120.0
+google-auth>=2.28.0
+google-auth-oauthlib>=1.2.0
+google-auth-httplib2>=0.2.0
+
+# Model layer (OpenRouter via OpenAI-compatible SDK)
+openai>=1.30.0
+
+# NLP and text processing (legacy spaCy path — kept for fallback only)
 spacy>=3.7.0
 nltk>=3.8.0
 
 # Database
+# SQLAlchemy used by older code; new ingestion uses stdlib sqlite3 directly for simplicity
 sqlalchemy>=2.0.0
 
-# Visualization and analysis
+# Visualization and analysis (downstream stages)
 networkx>=3.2.0
 matplotlib>=3.8.0
 plotly>=5.17.0
@@ -22,6 +33,6 @@ streamlit>=1.29.0
 flask>=3.0.0
 
 # Development tools
-pytest==7.4.3
-black==23.11.0
-flake8==6.1.0 
+pytest>=7.4.3
+black>=23.11.0
+flake8>=6.1.0
