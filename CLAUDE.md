@@ -195,9 +195,11 @@ pytest tests/
 1. **DONE (v0.2)**: Multi-newsletter Gmail API ingestion, SQLite raw store,
    section-aware parser, OpenRouter Stage 2 with section-typed prompts.
 2. **NEXT**: Run a real backfill — requires user to set up Google OAuth
-   credentials and `OPENROUTER_API_KEY`. Validate the model
-   `tencent/hy3-preview:free` slug against OpenRouter's catalog (if invalid,
-   swap to `anthropic/claude-haiku-4-5` or `google/gemini-2.5-flash`).
+   credentials and `OPENROUTER_API_KEY`. Slugs verified against
+   `https://openrouter.ai/api/v1/models` on 2026-05-06; if `MODEL_ID` is ever
+   rejected, current valid options are `deepseek/deepseek-v4-flash-20260423`
+   (cheap workhorse), `~anthropic/claude-haiku-latest` (router alias), or
+   `~google/gemini-flash-latest` (router alias).
 3. **MEDIUM**: Port Stage 3 (entity normalization/dedup) to consume the
    `extractions` SQLite table instead of file-based JSON in
    `data/structured/`.

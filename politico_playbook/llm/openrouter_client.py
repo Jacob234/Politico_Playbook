@@ -62,7 +62,8 @@ class OpenRouterClient:
         if not self.model_id:
             raise ValueError(
                 "MODEL_ID not set. Pick one from https://openrouter.ai/models "
-                "(e.g., 'anthropic/claude-haiku-4-5', 'google/gemini-2.5-flash')."
+                "(e.g., 'deepseek/deepseek-v4-flash-20260423', "
+                "'~anthropic/claude-haiku-latest', '~google/gemini-flash-latest')."
             )
 
         # OpenRouter likes attribution headers for analytics; not required.
