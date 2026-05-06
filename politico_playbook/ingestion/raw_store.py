@@ -63,14 +63,14 @@ class RawEmailStore:
 
     def _init_schema(self) -> None:
         with self._connect() as conn:
+            # WAL: readers + 1 writer coexist. Required because iter_pending holds a read cursor open across slow LLM calls in section_extractor; default DELETE-mode locking would block the writer.
+            conn.execute("PRAGMA journal_mode=WAL")
             conn.executescript(SCHEMA_SQL)
 
     @contextmanager
     def _connect(self) -> Iterator[sqlite3.Connection]:
-        conn = sqlite3.connect(
-            self.db_path,
-            detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES,
-        )
+        # No detect_types: Python 3.12's convert_timestamp chokes on tz-aware ISO; callers parse strings via datetime.fromisoformat() instead.
+        conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         try:
             yield conn
