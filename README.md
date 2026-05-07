@@ -82,6 +82,21 @@ sqlite3 data/raw_emails.db \
    ORDER BY extracted_at DESC LIMIT 10"
 ```
 
+## Documentation
+
+Reference docs live under [`docs/`](./docs/) — start at
+[`docs/README.md`](./docs/README.md) for an index.
+
+| Doc                                                  | When you'd want it |
+|------------------------------------------------------|---------------------|
+| [Architecture](./docs/ARCHITECTURE.md)               | Understanding the end-to-end pipeline |
+| [Schema](./docs/SCHEMA.md)                           | Writing SQL against `raw_emails` / `extractions` |
+| [Configuration](./docs/CONFIGURATION.md)             | Adding a newsletter or remapping a section header |
+| [Extraction output](./docs/EXTRACTION-OUTPUT.md)     | Consuming `parsed_json` downstream |
+| [Operations](./docs/OPERATIONS.md)                   | Running the pipeline; diagnosing failures |
+| [Roadmap](./docs/ROADMAP.md)                         | What's next (Stage 3/4 port, viz, tests) |
+| [OAuth setup](./docs/oauth-setup.md)                 | First-time Google OAuth setup for Gmail |
+
 ## Development
 
 ```bash

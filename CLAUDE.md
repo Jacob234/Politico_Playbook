@@ -7,6 +7,18 @@ NLP data extraction tool for analyzing the **POLITICO newsletter family** —
 Playbooks, vertical dailies, weeklies, Politico Pro) — to extract structured
 political intelligence data.
 
+### Reference documentation
+This file is the dev-facing development guide. For specific topics, jump to
+the appropriate doc in [`docs/`](./docs/) — see
+[`docs/README.md`](./docs/README.md) for the full index.
+
+- [Architecture](./docs/ARCHITECTURE.md) — pipeline data flow, component map, idempotency model
+- [Schema](./docs/SCHEMA.md) — `raw_emails` and `extractions` columns, indices, enum values
+- [Configuration](./docs/CONFIGURATION.md) — the three YAML files; how to add a newsletter
+- [Extraction output](./docs/EXTRACTION-OUTPUT.md) — `parsed_json` shapes per `section_type`
+- [Operations](./docs/OPERATIONS.md) — runbook; diagnosing `parse_failed` / `api_failed`
+- [Roadmap](./docs/ROADMAP.md) — what's next (Stage 3/4 port, Pro dispatcher, viz)
+
 ### Project Goals
 1. **Multi-Newsletter Ingestion**: Pull all subscribed POLITICO newsletters
    from a dedicated Gmail inbox via the Gmail API.
@@ -192,21 +204,19 @@ pytest tests/
 
 ## Priority Tasks (Next Steps)
 
-1. **DONE (v0.2)**: Multi-newsletter Gmail API ingestion, SQLite raw store,
-   section-aware parser, OpenRouter Stage 2 with section-typed prompts.
-2. **NEXT**: Run a real backfill — requires user to set up Google OAuth
-   credentials and `OPENROUTER_API_KEY`. Slugs verified against
-   `https://openrouter.ai/api/v1/models` on 2026-05-06; if `MODEL_ID` is ever
-   rejected, current valid options are `deepseek/deepseek-v4-flash-20260423`
-   (cheap workhorse), `~anthropic/claude-haiku-latest` (router alias), or
-   `~google/gemini-flash-latest` (router alias).
-3. **MEDIUM**: Port Stage 3 (entity normalization/dedup) to consume the
-   `extractions` SQLite table instead of file-based JSON in
-   `data/structured/`.
-4. **MEDIUM**: Port Stage 4 (graph + temporal) similarly.
-5. **MEDIUM**: Add fuzzy section header matching for Politico format drift
-   over the 15-month backfill window.
-6. **LOW**: Visualization layer (network graphs, timeline views).
+Roadmap, dependency graph, and effort estimates have moved to
+[`docs/ROADMAP.md`](./docs/ROADMAP.md). The critical path is Stage 3 port
+→ Stage 4 port → visualization; Pro dispatcher, fuzzy headers, and tests
+are independent and parallelizable.
+
+The immediate "what runs first" item: a real backfill against more than
+`politicoplaybook` — requires Google OAuth credentials (see
+[`docs/oauth-setup.md`](./docs/oauth-setup.md)) and `OPENROUTER_API_KEY`
+in `.env`. Validate `MODEL_ID` against
+[openrouter.ai/models](https://openrouter.ai/models) before kicking off a
+multi-newsletter run; current safe defaults are
+`deepseek/deepseek-v4-flash-20260423` (paid, cheap),
+`~anthropic/claude-haiku-latest`, or `~google/gemini-flash-latest`.
 
 ## v0.2 Architecture Notes
 
